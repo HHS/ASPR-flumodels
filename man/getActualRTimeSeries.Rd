@@ -8,6 +8,8 @@
 \alias{getActualRTimeSeries.SEIRTVModel}
 \alias{getActualRTimeSeries.SEIRV2DoseModel}
 \alias{getActualRTimeSeries.SEIRTV2DoseModel}
+\alias{getActualRTimeSeries.SEIRVMonoModel}
+\alias{getActualRTimeSeries.SEIRVPrimeBoostModel}
 \title{Get actual reproductive number time series}
 \usage{
 getActualRTimeSeries(model)
@@ -23,6 +25,10 @@ getActualRTimeSeries(model)
 \method{getActualRTimeSeries}{SEIRV2DoseModel}(model)
 
 \method{getActualRTimeSeries}{SEIRTV2DoseModel}(model)
+
+\method{getActualRTimeSeries}{SEIRVMonoModel}(model)
+
+\method{getActualRTimeSeries}{SEIRVPrimeBoostModel}(model)
 }
 \arguments{
 \item{model}{A flumodels model object}

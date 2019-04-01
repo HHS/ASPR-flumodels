@@ -187,3 +187,19 @@ getInfectiousnessVectorTimeSeries.SEIRVMonoModel <- function(model) {
                 - (model$parameters$VEiM * IvMTimeSeries / ITotalTimeSeries),
                 1))
 }
+
+#' @rdname getSusceptibilityVectorTimeSeries
+#' @method getSusceptibilityVectorTimeSeries SEIRVPrimeBoostModel
+#' @keywords internal
+#' @export
+getSusceptibilityVectorTimeSeries.SEIRVPrimeBoostModel <- function(model) {
+    getSusceptibilityVectorTimeSeries.SEIRV2DoseMosel(model)
+}
+
+#' @rdname getInfectiousnessVectorTimeSeries
+#' @method getInfectiousnessVectorTimeSeries SEIRVPrimeBoostModel
+#' @keywords internal
+#' @export
+getInfectiousnessVectorTimeSeries.SEIRVPrimeBoostModel <- function(model) {
+    getInfectiousnessVectorTimeSeries.SEIRV2DoseModel(model)
+}

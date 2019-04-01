@@ -9,6 +9,7 @@
 \alias{getInfectiousnessVectorTimeSeries.SEIRV2DoseModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRTV2DoseModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRVMonoModel}
+\alias{getInfectiousnessVectorTimeSeries.SEIRVPrimeBoostModel}
 \title{Get infectiousness vector time series}
 \usage{
 getInfectiousnessVectorTimeSeries(model)
@@ -26,6 +27,8 @@ getInfectiousnessVectorTimeSeries(model)
 \method{getInfectiousnessVectorTimeSeries}{SEIRTV2DoseModel}(model)
 
 \method{getInfectiousnessVectorTimeSeries}{SEIRVMonoModel}(model)
+
+\method{getInfectiousnessVectorTimeSeries}{SEIRVPrimeBoostModel}(model)
 }
 \arguments{
 \item{model}{A flumodels model object}

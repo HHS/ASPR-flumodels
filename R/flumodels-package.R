@@ -5,14 +5,15 @@
 #' @details \tabular{ll}{
 #' Package: \tab flumodels \cr
 #' Type: \tab Package \cr
-#' Version: \tab 1.0.6 \cr
-#' Date: \tab 2015-05-10 \cr
+#' Version: \tab 1.0.8 \cr
+#' Date: \tab 2017-09-06 \cr
 #' License: \tab BSD-2-Clause \cr
 #' }
 #' @name flumodels
 #' @aliases flumodels
 #' @docType package
 #' @author Jason Asher \email{jason.m.asher@@gmail.com}
+#' @import deSolve
 #' @keywords package
 #' @examples
 #' model <- SEIRModel(R0 = 1.3,

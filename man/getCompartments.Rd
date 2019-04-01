@@ -6,6 +6,7 @@
 \alias{getCompartments.SEIRVModel}
 \alias{getCompartments.SEIRV2DoseModel}
 \alias{getCompartments.SEIRVMonoModel}
+\alias{getCompartments.SEIRVPrimeBoostModel}
 \title{Get compartments}
 \usage{
 getCompartments(model, type)
@@ -17,6 +18,8 @@ getCompartments(model, type)
 \method{getCompartments}{SEIRV2DoseModel}(model, type)
 
 \method{getCompartments}{SEIRVMonoModel}(model, type)
+
+\method{getCompartments}{SEIRVPrimeBoostModel}(model, type)
 }
 \arguments{
 \item{model}{The model for which compartment names are desired}

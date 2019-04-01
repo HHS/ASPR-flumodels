@@ -61,6 +61,24 @@ getActualRTimeSeries.SEIRTV2DoseModel <- function(model) {
   return(computeActualRTimeSeries(model, reconstructState.SEIRV2Dose, getDerivative.SEIRTV2Dose))
 }
 
+#SEIRVMono
+#' @rdname getActualRTimeSeries
+#' @method getActualRTimeSeries SEIRVMonoModel
+#' @keywords internal
+#' @export
+getActualRTimeSeries.SEIRVMonoModel <- function(model) {
+    return(computeActualRTimeSeries(model, reconstructState.SEIRVMono, getDerivative.SEIRVMono))
+}
+
+#SEIRVPrimeBoost
+#' @rdname getActualRTimeSeries
+#' @method getActualRTimeSeries SEIRVPrimeBoostModel
+#' @keywords internal
+#' @export
+getActualRTimeSeries.SEIRVPrimeBoostModel <- function(model) {
+    return(computeActualRTimeSeries(model, reconstructState.SEIRVPrimeBoost, getDerivative.SEIRVPrimeBoost))
+}
+
 #' @title Compute actual reproductive number time series
 #' @description This is a helper function that implements the calculations in
 #'   the various 'getActualRTimeSeries' model class-specific functions

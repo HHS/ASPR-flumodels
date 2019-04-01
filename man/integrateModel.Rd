@@ -5,7 +5,7 @@
 \title{Integrate model}
 \usage{
 integrateModel(initialState, parameters, derivativeFunction, seedFunction,
-  method = "lsoda")
+  rootFunction, eventFunction, method = "lsoda")
 }
 \arguments{
 \item{initialState}{The initial state of the model's ODE system prior to seeding}
@@ -15,6 +15,12 @@ integrateModel(initialState, parameters, derivativeFunction, seedFunction,
 \item{derivativeFunction}{A function the computes the derivatives for the model's ODE system}
 
 \item{seedFunction}{A function that modifies the state to seed infections}
+
+\item{rootFunction}{An optional function(t, state, parameters) that triggers the
+eventFunction when any result component is 0}
+
+\item{eventFunction}{An optional function(t, state, parameters) that modifies state
+when triggered by the rootFunction}
 
 \item{method}{Which integration method to use. Defaults to lsoda}
 }

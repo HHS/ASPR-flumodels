@@ -58,3 +58,11 @@ getCompartments.SEIRVMonoModel <- function(model, type) {
                 R          = c("R", "Rv", "RvM"),
                 vaccinated = c("V"))) #Only tracks first dose (which it tries to give to everyone)
 }
+
+#' @rdname getCompartments
+#' @method getCompartments SEIRVPrimeBoostModel
+#' @keywords internal
+#' @export
+getCompartments.SEIRVPrimeBoostModel <- function(model, type) {
+  return(getCompartments.SEIRV2DoseModel(model, type))
+}

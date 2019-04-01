@@ -6,6 +6,7 @@
 \alias{getSusceptibilityVectorTimeSeries.SEIRVModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRV2DoseModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRVMonoModel}
+\alias{getSusceptibilityVectorTimeSeries.SEIRVPrimeBoostModel}
 \title{Get susceptibility vector time series}
 \usage{
 getSusceptibilityVectorTimeSeries(model)
@@ -17,6 +18,8 @@ getSusceptibilityVectorTimeSeries(model)
 \method{getSusceptibilityVectorTimeSeries}{SEIRV2DoseModel}(model)
 
 \method{getSusceptibilityVectorTimeSeries}{SEIRVMonoModel}(model)
+
+\method{getSusceptibilityVectorTimeSeries}{SEIRVPrimeBoostModel}(model)
 }
 \arguments{
 \item{model}{A flumodels model object}
