@@ -20,11 +20,12 @@ getDeaths <- function(model, ...) {
 #' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
 #' @param fractionSymptomatic The fraction of cases that are symptomatic; single fraction or vector of fractions by population group; must be specified
 #' @param caseFatalityRatio The fraction of cases that result in fatalities; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
 #' @return A vector of deaths or death rates
 #' @method getDeaths SEIRModel
 #' @keywords internal
 #' @export
-getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionSymptomatic, caseFatalityRatio) {
+getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionSymptomatic, caseFatalityRatio, timeSeries = FALSE) {
   if (missing(fractionSymptomatic)) {
     stop("fractionSymptomatic must be specified.")
   }
@@ -36,7 +37,14 @@ getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionS
   checkBetween0and1(caseFatalityRatio)
   checkDimensionsMatch(caseFatalityRatio, model$parameters$populationFractions)
   
+  if (timeSeries) {
+    deaths <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE) %*% 
+      diag(caseFatalityRatio)
+  }
+  else {
   deaths <- caseFatalityRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
+  }
+  
   if (asRate) {
     names(deaths) <- getLabels("deathRate", length(model$parameters$populationFractions)) 
   } else { #Number
@@ -45,7 +53,12 @@ getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionS
   if (byGroup) {
     return(deaths)
   } else {
+    if (timeSeries) {
+      return(rowSums(deaths))
+    }
+    else {
     return(sum(deaths))
+    }
   }
 }
 
@@ -56,11 +69,12 @@ getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionS
 #' @param byGroup Whether or not to return data by population group; defaults to TRUE
 #' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
 #' @param caseFatalityRatio The fraction of cases that result in fatalities; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
 #' @return A vector of deaths or death rates
 #' @method getDeaths SEIRTModel
 #' @keywords internal
 #' @export
-getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFatalityRatio) {
+getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFatalityRatio, timeSeries = FALSE) {
   if (missing(caseFatalityRatio)) {
     stop("caseFatalityRatio must be specified.")
   }
@@ -73,8 +87,15 @@ getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFata
                            model$parameters$fractionSeekCare
   AVEp.inpatient.eff <-  model$parameters$AVEp * model$parameters$fractionDiagnosedAndPrescribedInpatient *
                            model$parameters$fractionAdmitted * (1 - AVEp.outpatient.eff)
-  deaths <- caseFatalityRatio * (1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * 
+  
+  if (timeSeries) {
+    deaths <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE) %*% 
+      diag((1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * caseFatalityRatio)
+  }
+  else{
+    deaths <- caseFatalityRatio * (1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * 
               getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE)
+  }
   if (asRate) {
     names(deaths) <- getLabels("deathRate", length(model$parameters$populationFractions)) 
   } else { #Number
@@ -83,6 +104,11 @@ getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFata
   if (byGroup) {
     return(deaths)
   } else {
+    if (timeSeries) {
+      return(rowSums(deaths))
+    }
+    else {
     return(sum(deaths))
+    }
   }
 }

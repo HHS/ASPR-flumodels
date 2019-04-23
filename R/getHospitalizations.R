@@ -20,11 +20,12 @@ getHospitalizations <- function(model, ...) {
 #' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
 #' @param fractionSymptomatic The fraction of cases that are symptomatic; single fraction or vector of fractions by population group; must be specified
 #' @param caseHospitalizationRatio The fraction of cases that are hospitalized; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
 #' @return A vector of hospitalizations or hospitalization rates
 #' @method getHospitalizations SEIRModel
 #' @keywords internal
 #' @export
-getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionSymptomatic, caseHospitalizationRatio) {
+getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionSymptomatic, caseHospitalizationRatio, timeSeries = FALSE) {
   if (missing(fractionSymptomatic)) {
     stop("fractionSymptomatic must be specified.")
   }
@@ -36,8 +37,14 @@ getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE,
   checkBetween0and1(caseHospitalizationRatio)
   checkDimensionsMatch(caseHospitalizationRatio, model$parameters$populationFractions)
 
-  hospitalizations <- caseHospitalizationRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
-                        
+  if (timeSeries) {
+    hospitalizations <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE) %*% 
+      diag(caseHospitalizationRatio)
+  }
+  else {
+    hospitalizations <- caseHospitalizationRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
+  }                  
+      
   if (asRate) {
     names(hospitalizations) <- getLabels("hospitalizationRate", length(model$parameters$populationFractions)) 
   } else { #Number
@@ -46,7 +53,12 @@ getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE,
   if (byGroup) {
     return(hospitalizations)
   } else {
-    return(sum(hospitalizations))
+    if (timeSeries) {
+      return(rowSums(hospitalizations))
+    }
+    else {
+      return(sum(hospitalizations))
+    }
   }
 }
 
@@ -57,11 +69,12 @@ getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE,
 #' @param byGroup Whether or not to return data by population group; defaults to TRUE
 #' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
 #' @param caseHospitalizationRatio The fraction of cases that are hospitalized; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
 #' @return A vector of hospitalizations or hospitalization rates
 #' @method getHospitalizations SEIRTModel
 #' @keywords internal
 #' @export
-getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseHospitalizationRatio) {
+getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseHospitalizationRatio, timeSeries = FALSE) {
   if (missing(caseHospitalizationRatio)) {
     stop("caseHospitalizationRatio must be specified.")
   }
@@ -69,8 +82,16 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
                            model$parameters$fractionAdhere * 
                            model$parameters$fractionDiagnosedAndPrescribedOutpatient * 
                            model$parameters$fractionSeekCare
+  
+  if (timeSeries) {
+    hospitalizations <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE) %*% 
+      diag((1 - AVEp.outpatient.eff) * caseHospitalizationRatio)
+  }
+  else {
   hospitalizations <- getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE) * (1 - AVEp.outpatient.eff) *
                         caseHospitalizationRatio
+  }
+  
   if (asRate) {
     names(hospitalizations) <- getLabels("hospitalizationRate", length(model$parameters$populationFractions)) 
   } else { #Number
@@ -79,6 +100,11 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
   if (byGroup) {
     return(hospitalizations)
   } else {
-    return(sum(hospitalizations))
+    if (timeSeries) {
+      return(rowSums(hospitalizations))
+    }
+    else {
+      return(sum(hospitalizations))
+    }
   }
 }
