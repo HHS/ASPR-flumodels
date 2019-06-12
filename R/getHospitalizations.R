@@ -39,7 +39,7 @@ getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE,
 
   if (timeSeries) {
     hospitalizations <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE)) * 
-      diag(caseHospitalizationRatio))
+      caseHospitalizationRatio)
   }
   else {
     hospitalizations <- caseHospitalizationRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
@@ -85,7 +85,7 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
   
   if (timeSeries) {
     hospitalizations <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE)) * 
-      diag((1 - AVEp.outpatient.eff) * caseHospitalizationRatio))
+      (1 - AVEp.outpatient.eff) * caseHospitalizationRatio)
   }
   else {
     hospitalizations <- getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE) * (1 - AVEp.outpatient.eff) *

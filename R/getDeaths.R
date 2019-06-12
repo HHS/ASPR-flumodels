@@ -90,7 +90,7 @@ getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFata
   
   if (timeSeries) {
     deaths <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE)) * 
-      diag((1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * caseFatalityRatio))
+      (1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * caseFatalityRatio)
   }
   else {
     deaths <- caseFatalityRatio * (1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * 
