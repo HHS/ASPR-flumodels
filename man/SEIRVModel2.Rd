@@ -4,12 +4,13 @@
 \alias{SEIRVModel2}
 \title{SEIR+V Model}
 \usage{
-SEIRVModel2(population, populationFractions, contactMatrix, R0, latentPeriod,
-  infectiousPeriod, seedInfections, priorImmunity, useCommunityMitigation,
-  communityMitigationStartDay, communityMitigationDuration,
-  communityMitigationMultiplier, vaccineAdministrationRatePerDay,
-  vaccineAvailabilityByDay, vaccineUptakeMultiplier, VEs, VEi, VEp,
-  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
+SEIRVModel2(population, populationFractions, contactMatrix, R0,
+  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+  useCommunityMitigation, communityMitigationStartDay,
+  communityMitigationDuration, communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
+  simulationLength, seedStartDay, tolerance, method)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

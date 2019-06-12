@@ -4,12 +4,12 @@
 \alias{checkInputs.SEIR}
 \title{Check SEIR inputs}
 \usage{
-checkInputs.SEIR(population = 1, populationFractions = 1, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections = 0, priorImmunity = 0,
-  useCommunityMitigation = FALSE, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  simulationLength = 240, seedStartDay = 0, tolerance = 1e-08,
-  method = "lsoda", ...)
+checkInputs.SEIR(population = 1, populationFractions = 1,
+  contactMatrix, R0, latentPeriod, infectiousPeriod, seedInfections = 0,
+  priorImmunity = 0, useCommunityMitigation = FALSE,
+  communityMitigationStartDay, communityMitigationDuration,
+  communityMitigationMultiplier, simulationLength = 240,
+  seedStartDay = 0, tolerance = 1e-08, method = "lsoda", ...)
 }
 \value{
 List of parameters for the SEIR model

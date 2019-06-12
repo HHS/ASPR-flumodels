@@ -4,14 +4,14 @@
 \alias{SEIRVMonoModel}
 \title{SEIR+V+Mono Model}
 \usage{
-SEIRVMonoModel(population, populationFractions, contactMatrix, R0, latentPeriod,
-  infectiousPeriod, seedInfections, priorImmunity, useCommunityMitigation,
-  communityMitigationStartDay, communityMitigationDuration,
-  communityMitigationMultiplier, vaccineAdministrationRatePerDay,
-  vaccineAvailabilityDose1ByDay, vaccineAvailabilityDoseMByDay,
-  vaccineUptakeMultiplier, timeOfExclusiveMonovalent, VEs1, VEsM, VEi1, VEiM,
-  VEp1, VEpM, vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance,
-  method)
+SEIRVMonoModel(population, populationFractions, contactMatrix, R0,
+  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+  useCommunityMitigation, communityMitigationStartDay,
+  communityMitigationDuration, communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay, vaccineAvailabilityDose1ByDay,
+  vaccineAvailabilityDoseMByDay, vaccineUptakeMultiplier,
+  timeOfExclusiveMonovalent, VEs1, VEsM, VEi1, VEiM, VEp1, VEpM,
+  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

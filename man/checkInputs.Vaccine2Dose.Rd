@@ -7,8 +7,8 @@
 checkInputs.Vaccine2Dose(population, populationFractions, seedStartDay,
   simulationLength, vaccineAdministrationRatePerDay = 0,
   vaccineAvailabilityByDay = 0, vaccineUptakeMultiplier = 1,
-  dose2Delay = 0, VEs1 = 0, VEs2 = 0, VEi1 = 0, VEi2 = 0, VEp1 = 0,
-  VEp2 = 0, vaccineEfficacyDelay = 7, ...)
+  dose2Delay = 0, VEs1 = 0, VEs2 = 0, VEi1 = 0, VEi2 = 0,
+  VEp1 = 0, VEp2 = 0, vaccineEfficacyDelay = 7, ...)
 }
 \value{
 List of 2-Dose vaccine parameters

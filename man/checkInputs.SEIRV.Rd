@@ -2,7 +2,6 @@
 % Please edit documentation in R/SEIRVModel.R, R/SEIRVModel2.R
 \name{checkInputs.SEIRV}
 \alias{checkInputs.SEIRV}
-\alias{checkInputs.SEIRV}
 \title{Check SEIR+V inputs}
 \usage{
 checkInputs.SEIRV(population, populationFractions, contactMatrix, R0,

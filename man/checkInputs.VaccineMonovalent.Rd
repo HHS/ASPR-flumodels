@@ -4,11 +4,11 @@
 \alias{checkInputs.VaccineMonovalent}
 \title{Check vaccine inputs}
 \usage{
-checkInputs.VaccineMonovalent(population, populationFractions, seedStartDay,
-  simulationLength, vaccineAdministrationRatePerDay = 0,
+checkInputs.VaccineMonovalent(population, populationFractions,
+  seedStartDay, simulationLength, vaccineAdministrationRatePerDay = 0,
   vaccineAvailabilityDose1ByDay = 0, vaccineAvailabilityDoseMByDay = 0,
-  vaccineUptakeMultiplier = 1, timeOfExclusiveMonovalent = Inf, VEs1 = 0,
-  VEsM = 0, VEi1 = 0, VEiM = 0, VEp1 = 0, VEpM = 0,
+  vaccineUptakeMultiplier = 1, timeOfExclusiveMonovalent = Inf,
+  VEs1 = 0, VEsM = 0, VEi1 = 0, VEiM = 0, VEp1 = 0, VEpM = 0,
   vaccineEfficacyDelay = 7, ...)
 }
 \value{

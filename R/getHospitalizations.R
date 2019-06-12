@@ -38,8 +38,8 @@ getHospitalizations.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE,
   checkDimensionsMatch(caseHospitalizationRatio, model$parameters$populationFractions)
 
   if (timeSeries) {
-    hospitalizations <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE) %*% 
-      diag(caseHospitalizationRatio)
+    hospitalizations <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE)) * 
+      diag(caseHospitalizationRatio))
   }
   else {
     hospitalizations <- caseHospitalizationRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
@@ -84,12 +84,12 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
                            model$parameters$fractionSeekCare
   
   if (timeSeries) {
-    hospitalizations <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE) %*% 
-      diag((1 - AVEp.outpatient.eff) * caseHospitalizationRatio)
+    hospitalizations <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE)) * 
+      diag((1 - AVEp.outpatient.eff) * caseHospitalizationRatio))
   }
   else {
-  hospitalizations <- getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE) * (1 - AVEp.outpatient.eff) *
-                        caseHospitalizationRatio
+    hospitalizations <- getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE) * (1 - AVEp.outpatient.eff) *
+                          caseHospitalizationRatio
   }
   
   if (asRate) {

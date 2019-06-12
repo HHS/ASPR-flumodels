@@ -14,8 +14,8 @@ antiviral drugs.
 \tabular{ll}{
 Package: \tab flumodels \cr
 Type: \tab Package \cr
-Version: \tab 1.0.8 \cr
-Date: \tab 2017-09-06 \cr
+Version: \tab 1.0.9 \cr
+Date: \tab 2019-06-12 \cr
 License: \tab BSD-2-Clause \cr
 }
 }

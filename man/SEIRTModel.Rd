@@ -4,13 +4,14 @@
 \alias{SEIRTModel}
 \title{SEIR+T Model}
 \usage{
-SEIRTModel(population, populationFractions, contactMatrix, R0, latentPeriod,
-  infectiousPeriod, seedInfections, priorImmunity, useCommunityMitigation,
-  communityMitigationStartDay, communityMitigationDuration,
-  communityMitigationMultiplier, fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere, fractionAdmitted,
-  fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp, simulationLength,
-  seedStartDay, tolerance, method)
+SEIRTModel(population, populationFractions, contactMatrix, R0,
+  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+  useCommunityMitigation, communityMitigationStartDay,
+  communityMitigationDuration, communityMitigationMultiplier,
+  fractionSymptomatic, fractionSeekCare,
+  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
+  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
+  simulationLength, seedStartDay, tolerance, method)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

@@ -40,10 +40,10 @@ getInfectionTimeSeries.SEIRModel <- function(model, byGroup = TRUE, asRate = FAL
       }
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append(getCompartments(model, type = "I"),
                                                                         getCompartments(model, type = "R")))
-      dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- t(t(rbind(rep(0, compartmentLength),
                                       cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic
+                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic)
     } else {
       dailySusceptiblesByGroup <- getCombinedTimeSeries(model, getCompartments(model, type = "S"))
       dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
@@ -57,7 +57,7 @@ getInfectionTimeSeries.SEIRModel <- function(model, byGroup = TRUE, asRate = FAL
       if (missing(fractionSymptomatic)) {
         stop("fractionSymptomatic must be specified.")
       }
-      dailyInfectionsByGroup <- getCombinedTimeSeries(model, getCompartments(model, type = "I")) * fractionSymptomatic
+      dailyInfectionsByGroup <- t(t(getCombinedTimeSeries(model, getCompartments(model, type = "I"))) * fractionSymptomatic)
     } else {
       dailyInfectionsByGroup <- getCombinedTimeSeries(model, append(getCompartments(model, type = "E"),
                                                                     getCompartments(model, type = "I")))
@@ -92,16 +92,16 @@ getInfectionTimeSeries.SEIRVModel <- function(model, byGroup = TRUE, asRate = FA
       
       # Those who get VEp
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("Iv", "Rv"))
-      dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- t(t(rbind(rep(0, compartmentLength),
                                       cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic * (1 - model$parameters$VEp)
+                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic * (1 - model$parameters$VEp))
       # Those who do not get VEp
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("I", "R"))
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(rbind(rep(0, compartmentLength),
                                                                cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic
+                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic)
     } else {
       dailySusceptiblesByGroup <- getCombinedTimeSeries(model, getCompartments(model, type = "S"))
       dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
@@ -116,7 +116,7 @@ getInfectionTimeSeries.SEIRVModel <- function(model, byGroup = TRUE, asRate = FA
         stop("fractionSymptomatic must be specified.")
       }
       # Those who get VEp
-      dailyInfectionsByGroup <- getCombinedTimeSeries(model, "Iv") * fractionSymptomatic * (1 - model$parameters$VEp)
+      dailyInfectionsByGroup <- t(t(getCombinedTimeSeries(model, "Iv")) * fractionSymptomatic * (1 - model$parameters$VEp))
       # Those who don't
       dailyInfectionsByGroup <- dailyInfectionsByGroup + getCombinedTimeSeries(model, "I") * fractionSymptomatic
     } else {
@@ -154,22 +154,22 @@ getInfectionTimeSeries.SEIRV2DoseModel <- function(model, byGroup = TRUE, asRate
       
       # Those who get VEp1
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("Iv", "Rv"))
-      dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- t(t(rbind(rep(0, compartmentLength),
                                       cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic * (1 - model$parameters$VEp1)
+                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic * (1 - model$parameters$VEp1))
       # Those who get VEp2
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("Ivb", "Rvb"))
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(rbind(rep(0, compartmentLength),
                                                                cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic * (1 - model$parameters$VEp2)
+                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic * (1 - model$parameters$VEp2))
       # Those who do not get VEp
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("I", "R"))
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(rbind(rep(0, compartmentLength),
                                                                cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic
+                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic)
     } else {
       dailySusceptiblesByGroup <- getCombinedTimeSeries(model, getCompartments(model, type = "S"))
       dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
@@ -184,12 +184,12 @@ getInfectionTimeSeries.SEIRV2DoseModel <- function(model, byGroup = TRUE, asRate
         stop("fractionSymptomatic must be specified.")
       }
       # Those who get VEp1
-      dailyInfectionsByGroup <- getCombinedTimeSeries(model, "Iv") * fractionSymptomatic * (1 - model$parameters$VEp1)
+      dailyInfectionsByGroup <- t(t(getCombinedTimeSeries(model, "Iv")) * fractionSymptomatic * (1 - model$parameters$VEp1))
       # Those who get VEp2
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + getCombinedTimeSeries(model, "Ivb") *
-        fractionSymptomatic * (1 - model$parameters$VEp2)
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(getCombinedTimeSeries(model, "Ivb")) *
+        fractionSymptomatic * (1 - model$parameters$VEp2))
       # Those who don't
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + getCombinedTimeSeries(model, "I") * fractionSymptomatic
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(getCombinedTimeSeries(model, "I")) * fractionSymptomatic)
     } else {
       dailyInfectionsByGroup <- getCombinedTimeSeries(model, append(getCompartments(model, type = "E"),
                                                                     getCompartments(model, type = "I")))
@@ -286,22 +286,22 @@ getInfectionTimeSeries.SEIRVMonoModel <- function(model, byGroup = TRUE, asRate 
       
       # Those who get VEp1
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("Iv", "Rv"))
-      dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- t(t(rbind(rep(0, compartmentLength),
                                       cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic * (1 - model$parameters$VEp1)
+                                        cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic * (1 - model$parameters$VEp1))
       # Those who get VEpM
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("IvM", "RvM"))
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(rbind(rep(0, compartmentLength),
                                                                cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic * (1 - model$parameters$VEpM)
+                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic * (1 - model$parameters$VEpM))
       # Those who do not get VEp
       cumulativeIncidenceByGroup <- getCombinedTimeSeries(model, append("I", "R"))
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + rbind(rep(0, compartmentLength),
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(rbind(rep(0, compartmentLength),
                                                                cumulativeIncidenceByGroup[2:nrow(cumulativeIncidenceByGroup), , drop = FALSE] -
-                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE]) *
-        fractionSymptomatic
+                                                                 cumulativeIncidenceByGroup[1:(nrow(cumulativeIncidenceByGroup) - 1), , drop = FALSE])) *
+        fractionSymptomatic)
     } else {
       dailySusceptiblesByGroup <- getCombinedTimeSeries(model, getCompartments(model, type = "S"))
       dailyInfectionsByGroup <- rbind(rep(0, compartmentLength),
@@ -316,12 +316,12 @@ getInfectionTimeSeries.SEIRVMonoModel <- function(model, byGroup = TRUE, asRate 
         stop("fractionSymptomatic must be specified.")
       }
       # Those who get VEp1
-      dailyInfectionsByGroup <- getCombinedTimeSeries(model, "Iv") * fractionSymptomatic * (1 - model$parameters$VEp1)
+      dailyInfectionsByGroup <- t(t(getCombinedTimeSeries(model, "Iv")) * fractionSymptomatic * (1 - model$parameters$VEp1))
       # Those who get VEpM
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + getCombinedTimeSeries(model, "IvM") *
-        fractionSymptomatic * (1 - model$parameters$VEpM)
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(getCombinedTimeSeries(model, "IvM")) *
+        fractionSymptomatic * (1 - model$parameters$VEpM))
       # Those who don't
-      dailyInfectionsByGroup <- dailyInfectionsByGroup + getCombinedTimeSeries(model, "I") * fractionSymptomatic
+      dailyInfectionsByGroup <- dailyInfectionsByGroup + t(t(getCombinedTimeSeries(model, "I")) * fractionSymptomatic)
     } else {
       dailyInfectionsByGroup <- getCombinedTimeSeries(model, append(getCompartments(model, type = "E"),
                                                                     getCompartments(model, type = "I")))

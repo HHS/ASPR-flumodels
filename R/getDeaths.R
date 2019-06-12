@@ -38,11 +38,11 @@ getDeaths.SEIRModel <- function(model, byGroup = TRUE, asRate = FALSE, fractionS
   checkDimensionsMatch(caseFatalityRatio, model$parameters$populationFractions)
   
   if (timeSeries) {
-    deaths <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE) %*% 
-      diag(caseFatalityRatio)
+    deaths <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic, incidence = TRUE)) * 
+      caseFatalityRatio)
   }
   else {
-  deaths <- caseFatalityRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
+    deaths <- caseFatalityRatio * getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, fractionSymptomatic = fractionSymptomatic)
   }
   
   if (asRate) {
@@ -89,10 +89,10 @@ getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFata
                            model$parameters$fractionAdmitted * (1 - AVEp.outpatient.eff)
   
   if (timeSeries) {
-    deaths <- getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE) %*% 
-      diag((1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * caseFatalityRatio)
+    deaths <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE)) * 
+      diag((1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * caseFatalityRatio))
   }
-  else{
+  else {
     deaths <- caseFatalityRatio * (1 - AVEp.outpatient.eff - AVEp.inpatient.eff) * 
               getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE)
   }

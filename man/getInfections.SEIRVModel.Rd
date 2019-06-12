@@ -4,8 +4,8 @@
 \alias{getInfections.SEIRVModel}
 \title{Get infections}
 \usage{
-\method{getInfections}{SEIRVModel}(model, byGroup = TRUE, asRate = FALSE,
-  symptomatic = FALSE, fractionSymptomatic)
+\method{getInfections}{SEIRVModel}(model, byGroup = TRUE,
+  asRate = FALSE, symptomatic = FALSE, fractionSymptomatic)
 }
 \arguments{
 \item{model}{The model from which to get the data}

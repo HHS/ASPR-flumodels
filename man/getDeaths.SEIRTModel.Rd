@@ -5,7 +5,7 @@
 \title{Get deaths}
 \usage{
 \method{getDeaths}{SEIRTModel}(model, byGroup = TRUE, asRate = FALSE,
-  caseFatalityRatio)
+  caseFatalityRatio, timeSeries = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}
@@ -15,6 +15,8 @@
 \item{asRate}{Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE}
 
 \item{caseFatalityRatio}{The fraction of cases that result in fatalities; single fraction or vector of fractions by population group; must be specified}
+
+\item{timeSeries}{Whether to return a time series or a final cumulative value}
 }
 \value{
 A vector of deaths or death rates

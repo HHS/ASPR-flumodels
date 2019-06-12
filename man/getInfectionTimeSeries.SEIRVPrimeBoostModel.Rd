@@ -4,9 +4,9 @@
 \alias{getInfectionTimeSeries.SEIRVPrimeBoostModel}
 \title{Get infection time series}
 \usage{
-\method{getInfectionTimeSeries}{SEIRVPrimeBoostModel}(model, byGroup = TRUE,
-  asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
-  fractionSymptomatic, byWeek = FALSE)
+\method{getInfectionTimeSeries}{SEIRVPrimeBoostModel}(model,
+  byGroup = TRUE, asRate = FALSE, incidence = FALSE,
+  symptomatic = FALSE, fractionSymptomatic, byWeek = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}

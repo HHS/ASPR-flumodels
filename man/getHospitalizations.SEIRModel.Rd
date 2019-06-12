@@ -5,7 +5,8 @@
 \title{Get hospitalizations}
 \usage{
 \method{getHospitalizations}{SEIRModel}(model, byGroup = TRUE,
-  asRate = FALSE, fractionSymptomatic, caseHospitalizationRatio)
+  asRate = FALSE, fractionSymptomatic, caseHospitalizationRatio,
+  timeSeries = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}
@@ -17,6 +18,8 @@
 \item{fractionSymptomatic}{The fraction of cases that are symptomatic; single fraction or vector of fractions by population group; must be specified}
 
 \item{caseHospitalizationRatio}{The fraction of cases that are hospitalized; single fraction or vector of fractions by population group; must be specified}
+
+\item{timeSeries}{Whether to return a time series or a final cumulative value}
 }
 \value{
 A vector of hospitalizations or hospitalization rates

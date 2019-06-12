@@ -1,14 +1,15 @@
 Package: flumodels
 Type: Package
 Title: Deterministic compartmental models for influenza with mitigations.
-Version: 1.0.8
-Date: 2017-09-06
+Version: 1.0.9
+Date: 2019-06-12
 Authors@R: c(person("Jason", "Asher", email = "jason.m.asher@gmail.com", role = c("aut", "cre")),
-  person("Matt", "Clay", email = "clay.matt@gmail.com", role = c("ctb")))
+  person("Matt", "Clay", email = "clay.matt@gmail.com", role = c("ctb")),
+  person("David", "Durham", email = "david.p.durham@gmail.com", role = c("ctb")))
 Imports:
     deSolve
 Description: Provides several compartmental models for influenza that enable
     the consideration of various mitigation strategies including vaccines and
     antiviral drugs.
 License: BSD_2_clause
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

@@ -9,9 +9,9 @@ checkInputs.SEIRT(population, populationFractions, contactMatrix, R0,
   useCommunityMitigation, communityMitigationStartDay,
   communityMitigationDuration, communityMitigationMultiplier,
   fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere, fractionAdmitted,
-  fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp, simulationLength,
-  seedStartDay, tolerance, method)
+  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
+  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
+  simulationLength, seedStartDay, tolerance, method)
 }
 \value{
 List of parameters for the SEIR+T model

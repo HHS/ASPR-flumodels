@@ -2,7 +2,6 @@
 % Please edit documentation in R/SEIRVModel.R, R/SEIRVModel2.R
 \name{checkInputs.Vaccine}
 \alias{checkInputs.Vaccine}
-\alias{checkInputs.Vaccine}
 \title{Check vaccine inputs}
 \usage{
 checkInputs.Vaccine(population, populationFractions, seedStartDay,
