@@ -217,7 +217,7 @@ getInfectionTimeSeries.SEIRTModel <- function(model, byGroup = TRUE, asRate = FA
                                               symptomatic = FALSE, byWeek = FALSE) {
   return(getInfectionTimeSeries.SEIRModel(model, byGroup, asRate, incidence, symptomatic,
                                           fractionSymptomatic = model$parameters$fractionSymptomatic,
-                                          byWeek = FALSE))
+                                          byWeek))
 }
 
 #SEIRTV
@@ -237,7 +237,7 @@ getInfectionTimeSeries.SEIRTVModel <- function(model, byGroup = TRUE, asRate = F
                                                symptomatic = FALSE, byWeek = FALSE) {
   return(getInfectionTimeSeries.SEIRVModel(model, byGroup, asRate, incidence, symptomatic,
                                            fractionSymptomatic = model$parameters$fractionSymptomatic,
-                                           byWeek = FALSE))
+                                           byWeek))
 }
 
 #SEIRTV2Dose
@@ -257,7 +257,7 @@ getInfectionTimeSeries.SEIRTV2DoseModel <- function(model, byGroup = TRUE, asRat
                                                     symptomatic = FALSE, byWeek = FALSE) {
   return(getInfectionTimeSeries.SEIRV2DoseModel(model, byGroup, asRate, incidence, symptomatic,
                                                 fractionSymptomatic = model$parameters$fractionSymptomatic,
-                                                byWeek = FALSE))
+                                                byWeek))
 }
 
 
