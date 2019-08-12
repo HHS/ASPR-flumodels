@@ -348,6 +348,26 @@ getInfectionTimeSeries.SEIRVMonoModel <- function(model, byGroup = TRUE, asRate 
 #' @export
 getInfectionTimeSeries.SEIRVPrimeBoostModel <- getInfectionTimeSeries.SEIRV2DoseModel
 
+#SEIRTVPrimeBoost
+#' @title Get infection time series
+#' @description Gets the time series of infections from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param incidence If true, returns infection incidence, otherwise returns infection prevalence; defaults to FALSE
+#' @param symptomatic Whether or not to only report symptomatic infections; defaults to FALSE
+#' @param byWeek If true, returns the output on a weekly, not daily basis; defaults to FALSE
+#' @return A matrix that contains the infections by simulation day (or week, if byWeek is selected)
+#' @method getInfectionTimeSeries SEIRTVPrimeBoostModel
+#' @keywords internal
+#' @export
+getInfectionTimeSeries.SEIRTVPrimeBoostModel <- function(model, byGroup = TRUE, asRate = FALSE, incidence = FALSE,
+                                                         symptomatic = FALSE, byWeek = FALSE) {
+  return(getInfectionTimeSeries.SEIRV2DoseModel(model, byGroup, asRate, incidence, symptomatic,
+                                                fractionSymptomatic = model$parameters$fractionSymptomatic,
+                                                byWeek))
+}
+
 #Convenience function to produce the final step of output
 #' @title Get infection time series
 #' @description Gets the time series of infections from the given model

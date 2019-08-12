@@ -278,3 +278,18 @@ getInfections.SEIRVMonoModel <- function(model, byGroup = TRUE, asRate = FALSE, 
 #' @keywords internal
 #' @export
 getInfections.SEIRVPrimeBoostModel <- getInfections.SEIRV2DoseModel
+
+#SEIRTVPrimeBoost
+#' @title Get infections
+#' @description Gets the total infections from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param symptomatic Whether or not to only report symptomatic infections; defaults to FALSE
+#' @return A vector of infections
+#' @method getInfections SEIRTVPrimeBoostModel
+#' @keywords internal
+#' @export
+getInfections.SEIRTVPrimeBoostModel <- function(model, byGroup = TRUE, asRate = FALSE, symptomatic = FALSE) {
+  return(getInfections.SEIRV2DoseModel(model, byGroup, asRate, symptomatic, fractionSymptomatic = model$parameters$fractionSymptomatic))
+}

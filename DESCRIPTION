@@ -1,8 +1,8 @@
 Package: flumodels
 Type: Package
 Title: Deterministic compartmental models for influenza with mitigations.
-Version: 1.0.9
-Date: 2019-06-12
+Version: 1.0.10
+Date: 2019-08-12
 Authors@R: c(person("Jason", "Asher", email = "jason.m.asher@gmail.com", role = c("aut", "cre")),
   person("Matt", "Clay", email = "clay.matt@gmail.com", role = c("ctb")),
   person("David", "Durham", email = "david.p.durham@gmail.com", role = c("ctb")))
