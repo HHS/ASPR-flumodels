@@ -195,3 +195,32 @@ getDerivative.SEIRTV <- function(t, state, parameters) {
     return(list(c(dS, dE, dI, dR, dSv, dEv, dIv, dRv, dV)))
   })
 }
+
+#This is a utility function that reconstructs the model state as a list so that equations can refer to compartments by name
+reconstructState.SEIRV <- function(state) {
+  numberOfClasses <- length(state) / 9 #Each of the 9 classes are vectors of the same length
+  S  <- state[                       1 :     numberOfClasses ]
+  E  <- state[    (numberOfClasses + 1):(2 * numberOfClasses)]
+  I  <- state[(2 * numberOfClasses + 1):(3 * numberOfClasses)]
+  R  <- state[(3 * numberOfClasses + 1):(4 * numberOfClasses)]
+  Sv <- state[(4 * numberOfClasses + 1):(5 * numberOfClasses)]
+  Ev <- state[(5 * numberOfClasses + 1):(6 * numberOfClasses)]
+  Iv <- state[(6 * numberOfClasses + 1):(7 * numberOfClasses)]
+  Rv <- state[(7 * numberOfClasses + 1):(8 * numberOfClasses)]
+  V  <- state[(8 * numberOfClasses + 1):(9 * numberOfClasses)]
+  return(as.list(environment()))
+}
+
+#This function implements seeding infections in the SEIR+V model
+#parameters should define seedInfections, lambda, and gamma
+doSeed.SEIRV <- function(state, parameters) {
+  stateList <- reconstructState.SEIRV(state)
+  with(append(stateList, parameters), {
+    seedInfectionsFractions <- seedInfections / population
+    S <- S - seedInfectionsFractions
+    E <- E + seedInfectionsFractions / (1 + lambda / gamma)
+    I <- I + seedInfectionsFractions / (1 + gamma / lambda)
+    #Return derivative
+    return(c(S, E, I, R, Sv, Ev, Iv, Rv, V))
+  })
+}
