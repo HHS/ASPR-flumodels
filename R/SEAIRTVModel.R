@@ -1,5 +1,5 @@
-#' @title SEIR+TV Model
-#' @description A model for influenza that uses a SEIR framework with age 
+#' @title SEAIR+TV Model
+#' @description A model for influenza that uses a SEAIR framework with age 
 #'   structure and that allows for antiviral treatment and vaccination
 #' @param population Size of population; defaults to 1
 #' @param populationFractions Vector of population fractions (all non-negative, 
@@ -71,9 +71,9 @@
 #' @param tolerance Absolute tolerance for numerical integration; defaults to 
 #'   1e-8
 #' @param method Which integration method to use. Defaults to lsoda
-#' @return a SEIRTVModel object
+#' @return a SEAIRTVModel object
 #' @export
-SEIRTVModel <- function(population, populationFractions, contactMatrix, R0,
+SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
                         latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
                         useCommunityMitigation, communityMitigationStartDay,
                         communityMitigationDuration, communityMitigationMultiplier,
@@ -86,15 +86,17 @@ SEIRTVModel <- function(population, populationFractions, contactMatrix, R0,
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
-  parameters <- do.call("checkInputs.SEIRTV", argumentList) #Get parameters from checked inputs
+  parameters <- do.call("checkInputs.SEAIRTV", argumentList) #Get parameters from checked inputs
 
   initialState <- with(parameters, {
     c(S  = (1 - priorImmunity) * populationFractions,
       E  = 0 * populationFractions,
+      A  = 0 * populationFractions,
       I  = 0 * populationFractions,
       R  = priorImmunity * populationFractions,
       Sv = 0 * populationFractions,
       Ev = 0 * populationFractions,
+      Av = 0 * populationFractions,
       Iv = 0 * populationFractions,
       Rv = 0 * populationFractions,
       V  = 0 * populationFractions)
@@ -102,21 +104,21 @@ SEIRTVModel <- function(population, populationFractions, contactMatrix, R0,
   
   rawOutput <- integrateModel(initialState = initialState,
                               parameters = parameters,
-                              derivativeFunction = getDerivative.SEIRTV,
-                              seedFunction = doSeed.SEIRV)
+                              derivativeFunction = getDerivative.SEAIRTV,
+                              seedFunction = doSeed.SEAIRV)
   
-  #Build the SEIRVModel object to return
+  #Build the SEAIRVModel object to return
   model <- list(parameters = parameters,
                 rawOutput = rawOutput)
-  class(model) <- c("SEIRTVModel", "SEIRTModel", "SEIRVModel", "SEIRModel")
+  class(model) <- c("SEAIRTVModel")
   return(model)
 }
 
-#' @title Check SEIR+TV inputs
-#' @description Checks the input parameters for the SEIR+V model
-#' @return List of parameters for the SEIR+V model
+#' @title Check SEAIR+TV inputs
+#' @description Checks the input parameters for the SEAIR+V model
+#' @return List of parameters for the SEAIR+V model
 #' @keywords internal
-checkInputs.SEIRTV <- function(population, populationFractions, contactMatrix, R0,
+checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, R0,
                                latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
                                useCommunityMitigation, communityMitigationStartDay,
                                communityMitigationDuration, communityMitigationMultiplier,
@@ -140,12 +142,12 @@ checkInputs.SEIRTV <- function(population, populationFractions, contactMatrix, R
   return(c(SEIRParameters, antiviralParameters, vaccineParameters))
 }
 
-#This function implements the multivariate derivative of the SEIR+TV model
+#This function implements the multivariate derivative of the SEAIR+TV model
 #parameters should define populationFractions, contactMatrix, beta, lambda, gamma,
 #AVEi.eff, VEs, VEi, and the function vaccinationRate(t)
 #Note that the total population is normalized to be 1
-getDerivative.SEIRTV <- function(t, state, parameters) {
-  stateList <- reconstructState.SEIRV(state)
+getDerivative.SEAIRTV <- function(t, state, parameters) {
+  stateList <- reconstructState.SEAIRV(state)
   with(append(stateList, parameters), {
     if (useCommunityMitigation) {
       if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay)) {
@@ -168,11 +170,13 @@ getDerivative.SEIRTV <- function(t, state, parameters) {
                                                                            VEp *AVEi.eff * (1 - VEi) * Iv ))
     
     S_to_E <- S * forceOfInfection
-    E_to_I <- lambda * E 
+    E_to_A <- lambda1 * E
+    A_to_I <- lambda2 * A
     I_to_R <- gamma * I
     
     Sv_to_Ev <- Sv * (1 - VEs) * forceOfInfection
-    Ev_to_Iv <- lambda * Ev
+    Ev_to_Av <- lambda1 * Ev
+    Av_to_Iv <- lambda2 * Av
     Iv_to_Rv <- gamma * Iv
     
     S_to_Sv <-  ifelse(V < populationFractions, vaccinationRateByAge * S / (populationFractions - V), 0)
@@ -180,47 +184,52 @@ getDerivative.SEIRTV <- function(t, state, parameters) {
     #Derivatives
     #Non-vaccinated compartments
     dS <- -S_to_E - S_to_Sv
-    dE <- S_to_E - E_to_I
-    dI <- E_to_I - I_to_R
+    dE <- S_to_E - E_to_A
+    dA <- E_to_A - A_to_I
+    dI <- A_to_I - I_to_R
     dR <- I_to_R
     #Vaccinated compartments
     dSv <- -Sv_to_Ev + S_to_Sv
-    dEv <- Sv_to_Ev - Ev_to_Iv
-    dIv <- Ev_to_Iv - Iv_to_Rv
+    dEv <- Sv_to_Ev - Ev_to_Av
+    dAv <- Ev_to_Av - Av_to_Iv
+    dIv <- Av_to_Iv - Iv_to_Rv
     dRv <- Iv_to_Rv
     #Auxiliary vaccinated compartment
     dV <- ifelse(V < populationFractions, vaccinationRateByAge, 0)
     
     #Return derivative
-    return(list(c(dS, dE, dI, dR, dSv, dEv, dIv, dRv, dV)))
+    return(list(c(dS, dE, dA, dI, dR, dSv, dEv, dAv, dIv, dRv, dV)))
   })
 }
 
 #This is a utility function that reconstructs the model state as a list so that equations can refer to compartments by name
-reconstructState.SEIRV <- function(state) {
-  numberOfClasses <- length(state) / 9 #Each of the 9 classes are vectors of the same length
+reconstructState.SEAIRV <- function(state) {
+  numberOfClasses <- length(state) / 11 #Each of the 11 classes are vectors of the same length
   S  <- state[                       1 :     numberOfClasses ]
   E  <- state[    (numberOfClasses + 1):(2 * numberOfClasses)]
-  I  <- state[(2 * numberOfClasses + 1):(3 * numberOfClasses)]
-  R  <- state[(3 * numberOfClasses + 1):(4 * numberOfClasses)]
-  Sv <- state[(4 * numberOfClasses + 1):(5 * numberOfClasses)]
-  Ev <- state[(5 * numberOfClasses + 1):(6 * numberOfClasses)]
-  Iv <- state[(6 * numberOfClasses + 1):(7 * numberOfClasses)]
-  Rv <- state[(7 * numberOfClasses + 1):(8 * numberOfClasses)]
-  V  <- state[(8 * numberOfClasses + 1):(9 * numberOfClasses)]
+  A  <- state[(2 * numberOfClasses + 1):(3 * numberOfClasses)]
+  I  <- state[(3 * numberOfClasses + 1):(4 * numberOfClasses)]
+  R  <- state[(4 * numberOfClasses + 1):(5 * numberOfClasses)]
+  Sv <- state[(5 * numberOfClasses + 1):(6 * numberOfClasses)]
+  Ev <- state[(6 * numberOfClasses + 1):(7 * numberOfClasses)]
+  Av <- state[(7 * numberOfClasses + 1):(8 * numberOfClasses)]
+  Iv <- state[(8 * numberOfClasses + 1):(9 * numberOfClasses)]
+  Rv <- state[(9 * numberOfClasses + 1):(10 * numberOfClasses)]
+  V  <- state[(10 * numberOfClasses + 1):(11 * numberOfClasses)]
   return(as.list(environment()))
 }
 
-#This function implements seeding infections in the SEIR+V model
-#parameters should define seedInfections, lambda, and gamma
-doSeed.SEIRV <- function(state, parameters) {
-  stateList <- reconstructState.SEIRV(state)
+#This function implements seeding infections in the SEAIR+V model
+#parameters should define seedInfections, lambda1, lambda2, and gamma
+doSeed.SEAIRV <- function(state, parameters) {
+  stateList <- reconstructState.SEAIRV(state)
   with(append(stateList, parameters), {
     seedInfectionsFractions <- seedInfections / population
     S <- S - seedInfectionsFractions
-    E <- E + seedInfectionsFractions / (1 + lambda / gamma)
-    I <- I + seedInfectionsFractions / (1 + gamma / lambda)
+    E <- E + seedInfectionsFractions / (1 + (gamma + lambda2) / lambda1)
+    A <- A + seedInfectionsFractions / (1 + (lambda1 + gamma) / lambda2)
+    I <- I + seedInfectionsFractions / (1 + (lambda1 + lambda2) / gamma)
     #Return derivative
-    return(c(S, E, I, R, Sv, Ev, Iv, Rv, V))
+    return(c(S, E, A, I, R, Sv, Ev, Av, Iv, Rv, V))
   })
 }
