@@ -6,6 +6,7 @@
 \alias{getActualRTimeSeries.SEIRTModel}
 \alias{getActualRTimeSeries.SEIRVModel}
 \alias{getActualRTimeSeries.SEIRTVModel}
+\alias{getActualRTimeSeries.SEAIRTVModel}
 \alias{getActualRTimeSeries.SEIRV2DoseModel}
 \alias{getActualRTimeSeries.SEIRTV2DoseModel}
 \alias{getActualRTimeSeries.SEIRVMonoModel}
@@ -21,6 +22,8 @@ getActualRTimeSeries(model)
 \method{getActualRTimeSeries}{SEIRVModel}(model)
 
 \method{getActualRTimeSeries}{SEIRTVModel}(model)
+
+\method{getActualRTimeSeries}{SEAIRTVModel}(model)
 
 \method{getActualRTimeSeries}{SEIRV2DoseModel}(model)
 

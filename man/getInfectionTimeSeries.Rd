@@ -22,6 +22,7 @@ This is the generic function, for class-specific versions see:
  \item \code{\link{getInfectionTimeSeries.SEIRV2DoseModel}} for SEIRV2Dose-type models
  \item \code{\link{getInfectionTimeSeries.SEIRTModel}} for SEIRT-type models
  \item \code{\link{getInfectionTimeSeries.SEIRTVModel}} for SEIRTV-type models
+ \item \code{\link{getInfectionTimeSeries.SEAIRTVModel}} for SEAIRTV-type models
  \item \code{\link{getInfectionTimeSeries.SEIRTV2DoseModel}} for SEIRTV2Dose-type models
 }
 }

@@ -4,6 +4,7 @@
 \alias{getCompartments}
 \alias{getCompartments.SEIRModel}
 \alias{getCompartments.SEIRVModel}
+\alias{getCompartments.SEAIRTVModel}
 \alias{getCompartments.SEIRV2DoseModel}
 \alias{getCompartments.SEIRVMonoModel}
 \alias{getCompartments.SEIRVPrimeBoostModel}
@@ -14,6 +15,8 @@ getCompartments(model, type)
 \method{getCompartments}{SEIRModel}(model, type)
 
 \method{getCompartments}{SEIRVModel}(model, type)
+
+\method{getCompartments}{SEAIRTVModel}(model, type)
 
 \method{getCompartments}{SEIRV2DoseModel}(model, type)
 

@@ -21,5 +21,6 @@ This is the generic function, for class-specific versions see:
 \itemize{
  \item \code{\link{plot.SEIRModel}} for SEIR-type models
  \item \code{\link{plot.SEIRTModel}} for SEIRT-type models
+ \item \code{\link{plot.SEAIRTVModel}} for SEAIRTV-type models
 }
 }
