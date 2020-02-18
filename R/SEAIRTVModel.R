@@ -11,6 +11,10 @@
 #'   in a completely susceptible population; must be specified
 #' @param latentPeriod Latent period in days; must be specified
 #' @param infectiousPeriod Infectious period in days; must be specified
+#' @param fractionLatentThatIsInfectious Fraction of latent period that is infectious; 
+#'   in the range 0 to 1 (inclusive), must be specified
+#' @param relativeInfectivityPresymptomatic Infectivitiy of the pre-symptomatic 
+#'   period, relative to the standard infectious period; defaults to 1
 #' @param seedInfections Fraction of the population to seed with infections; 
 #'   single fraction or vector of fractions by population group; defaults to 0
 #' @param priorImmunity Fraction of the population with prior immunity; single 
@@ -61,7 +65,7 @@
 #'   infected individuals; single fraction or vector of fractions by population
 #'   group; defaults to 0
 #' @param VEp Vaccine efficacy: prevention of symptomatic illness in
-#'   infected indivduals; single fraction or vector of fractions by population
+#'   infected individuals; single fraction or vector of fractions by population
 #'   group; defaults to 0
 #' @param vaccineEfficacyDelay Delay in days between administration of dose and 
 #'   onset of protection; defaults to 7
@@ -75,6 +79,7 @@
 #' @export
 SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
                         latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+                        fractionLatentThatIsInfectious, relativeInfectivityPresymptomatic,
                         useCommunityMitigation, communityMitigationStartDay,
                         communityMitigationDuration, communityMitigationMultiplier,
                         fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
@@ -120,6 +125,7 @@ SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
 #' @keywords internal
 checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, R0,
                                latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+                               fractionLatentThatIsInfectious, relativeInfectivityPresymptomatic,
                                useCommunityMitigation, communityMitigationStartDay,
                                communityMitigationDuration, communityMitigationMultiplier,
                                fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
@@ -131,6 +137,15 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
   SEIRParameters <- do.call("checkInputs.SEIR", argumentList)
+  
+  #fractionLatentThatIsInfectious
+  if (missing(fractionLatentThatIsInfectious)) {
+    stop("fractionLatentThatIsInfectious must be specified.", call. = FALSE)
+  }
+  checkBetween0and1(fractionLatentThatIsInfectious)
+  #relativeInfectivityPresymptomatic
+  checkPositive(relativeInfectivityPresymptomatic)
+  
   antiviralParameters <- do.call("checkInputs.Antiviral", argumentList)
   #Update arguments passed to checkInputs.Vaccine using SEIRParameters
   argumentList$population <- SEIRParameters$population
@@ -138,6 +153,18 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
   argumentList$seedStartDay <- SEIRParameters$seedStartDay
   argumentList$simulationLength <- SEIRParameters$simulationLength
   vaccineParameters <- do.call("checkInputs.Vaccine", argumentList)
+  
+  # Update SEIRParameters for beta, lambda1, and lambda2
+  SEIRParameters$lambda1 = 1 / ((1-fractionLatentThatIsInfectious) * latentPeriod)
+  SEIRParameters$lambda2 = 1 / (fractionLatentThatIsInfectious * latentPeriod)
+  SEIRParameters$fractionLatentThatIsInfectious = fractionLatentThatIsInfectious
+  SEIRParameters$relativeInfectivityPresymptomatic = relativeInfectivityPresymptomatic
+  # If there are no community mitigations, eg contact matrix among presymptomatic class is the same as among symptomatic class
+  SEIRParameters$beta = R0 / 
+    max(Mod(eigen(
+        (infectiousPeriod + relativeInfectivityPresymptomatic / SEIRParameters$lambda2) * contactMatrix,
+      symmetric = FALSE, only.values = TRUE
+    )$values))
   #Return the parameters
   return(c(SEIRParameters, antiviralParameters, vaccineParameters))
 }
@@ -149,9 +176,10 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
 getDerivative.SEAIRTV <- function(t, state, parameters) {
   stateList <- reconstructState.SEAIRV(state)
   with(append(stateList, parameters), {
+    contactMatrixWithCommunityMitigation <- contactMatrix
     if (useCommunityMitigation) {
       if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay)) {
-        contactMatrix <- communityMitigationMultiplier * contactMatrix
+        contactMatrixWithCommunityMitigation <- communityMitigationMultiplier * contactMatrix
       } 
     }
 
@@ -166,8 +194,14 @@ getDerivative.SEAIRTV <- function(t, state, parameters) {
     #Flows
     # forceOfInfection <- beta / populationFractions * (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi) * Iv))))
     # Adjusted to account for VEp, which reduces the impact of AVEi since it, in essence, reduces fractionSymptomatic
-    forceOfInfection <- beta / populationFractions * (contactMatrix %*% ((1 - AVEi.eff) * (I + (1 - VEi) * Iv) + 
-                                                                           VEp *AVEi.eff * (1 - VEi) * Iv ))
+    forceOfInfection <- beta / populationFractions * (
+      contactMatrixWithCommunityMitigation %*% ((1 - AVEi.eff) * (I + (1 - VEi) * Iv) +
+                                                  VEp * AVEi.eff * (1 - VEi) * Iv) +
+        relativeInfectivityPresymptomatic * (
+          contactMatrix %*% ((1 - AVEi.eff) * (A + (1 - VEi) * Av) + 
+                             VEp * AVEi.eff * (1 - VEi) * Av)
+          )
+      )
     
     S_to_E <- S * forceOfInfection
     E_to_A <- lambda1 * E
@@ -226,9 +260,13 @@ doSeed.SEAIRV <- function(state, parameters) {
   with(append(stateList, parameters), {
     seedInfectionsFractions <- seedInfections / population
     S <- S - seedInfectionsFractions
-    E <- E + seedInfectionsFractions / (1 + (gamma + lambda2) / lambda1)
-    A <- A + seedInfectionsFractions / (1 + (lambda1 + gamma) / lambda2)
-    I <- I + seedInfectionsFractions / (1 + (lambda1 + lambda2) / gamma)
+    # E, A, I initialized such that A and I have derivatives of 0 at seed
+    E <- E + seedInfectionsFractions * (gamma * lambda2) / 
+      (lambda1 * lambda2 + gamma * (lambda1 + lambda2))
+    A <- A + seedInfectionsFractions * (gamma * lambda1) /
+      (lambda1 * lambda2 + gamma * (lambda1 + lambda2))
+    I <- I + seedInfectionsFractions * (lambda1 * lambda2) /
+      (lambda1 * lambda2 + gamma * (lambda1 + lambda2))
     #Return derivative
     return(c(S, E, A, I, R, Sv, Ev, Av, Iv, Rv, V))
   })
