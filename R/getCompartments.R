@@ -34,6 +34,20 @@ getCompartments.SEIRVModel <- function(model, type) {
 }
 
 #' @rdname getCompartments
+#' @method getCompartments SEAIRTVModel
+#' @keywords internal
+#' @export
+getCompartments.SEAIRTVModel <- function(model, type) {
+  return(switch(type,
+                S          = c("S", "Sv"),
+                E          = c("E", "Ev"),
+                A          = c("A", "Av"),
+                I          = c("I", "Iv"),
+                R          = c("R", "Rv"),
+                vaccinated = c("V")))
+}
+
+#' @rdname getCompartments
 #' @method getCompartments SEIRV2DoseModel
 #' @keywords internal
 #' @export

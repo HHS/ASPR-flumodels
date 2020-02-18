@@ -18,3 +18,13 @@ print.SEIRModel <- function(x, ...) {
       latentPeriod, "days, recovery period:", recoveryPeriod, "days)\n")
   cat("Serologic attack rate:", paste0(round(100*getInfections(x, byGroup = FALSE, asRate = TRUE), 2), "%"), "\n")
 }
+
+#' @title Print
+#' @description Prints a brief summary of a SEAIRTVModel object.
+#' @rdname print
+#' @method print SEAIRTVModel
+#' @keywords internal
+#' @export
+print.SEAIRTVModel <- function(x, ...) {
+  print.SEIRModel(x)
+}

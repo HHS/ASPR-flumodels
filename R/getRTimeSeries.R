@@ -129,6 +129,14 @@ getInfectiousnessVectorTimeSeries.SEIRTVModel <- function(model) {
 }
 
 #' @rdname getInfectiousnessVectorTimeSeries
+#' @method getInfectiousnessVectorTimeSeries SEAIRTVModel
+#' @keywords internal
+#' @export
+getInfectiousnessVectorTimeSeries.SEAIRTVModel <- function(model) {
+  getInfectiousnessVectorTimeSeries.SEIRTVModel(model)
+}
+
+#' @rdname getInfectiousnessVectorTimeSeries
 #' @method getInfectiousnessVectorTimeSeries SEIRV2DoseModel
 #' @keywords internal
 #' @export

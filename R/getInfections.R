@@ -7,6 +7,7 @@
 #'  \item \code{\link{getInfections.SEIRV2DoseModel}} for SEIRV2Dose-type models
 #'  \item \code{\link{getInfections.SEIRTModel}} for SEIRT-type models
 #'  \item \code{\link{getInfections.SEIRTVModel}} for SEIRTV-type models
+#'  \item \code{\link{getInfections.SEAIRTVModel}} for SEAIRTV-type models
 #'  \item \code{\link{getInfections.SEIRTV2DoseModel}} for SEIRTV2Dose-type models
 #' }
 #' @param model A flumodels model object
@@ -194,6 +195,21 @@ getInfections.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, symp
 #' @keywords internal
 #' @export
 getInfections.SEIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, symptomatic = FALSE) {
+  getInfections.SEIRVModel(model, byGroup, asRate, symptomatic, fractionSymptomatic = model$parameters$fractionSymptomatic)
+}
+
+#SEAIRTV
+#' @title Get infections
+#' @description Gets the total infections from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param symptomatic Whether or not to only report symptomatic infections; defaults to FALSE
+#' @return A vector of infections
+#' @method getInfections SEAIRTVModel
+#' @keywords internal
+#' @export
+getInfections.SEAIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, symptomatic = FALSE) {
   getInfections.SEIRVModel(model, byGroup, asRate, symptomatic, fractionSymptomatic = model$parameters$fractionSymptomatic)
 }
 
