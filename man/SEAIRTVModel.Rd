@@ -14,7 +14,7 @@ SEAIRTVModel(
   seedInfections,
   priorImmunity,
   fractionLatentThatIsInfectious,
-  relativeInfectivityPresymptomatic,
+  relativeInfectivityAsymptomatic,
   useCommunityMitigation,
   communityMitigationStartDay,
   communityMitigationDuration,
@@ -66,8 +66,8 @@ fraction, or vector of fractions by population group; defaults to 0}
 \item{fractionLatentThatIsInfectious}{Fraction of latent period that is infectious; 
 in the range 0 to 1 (inclusive), must be specified}
 
-\item{relativeInfectivityPresymptomatic}{Infectivitiy of the pre-symptomatic 
-period, relative to the standard infectious period; defaults to 1}
+\item{relativeInfectivityAsymptomatic}{Infectivity of asymptomatic 
+individuals, relative to symptomatic individuals; defaults to 1}
 
 \item{useCommunityMitigation}{Whether or not to use community mitigation
 implemented by modulation of the contact matrix; defaults to FALSE}

@@ -14,7 +14,7 @@ checkInputs.SEAIRTV(
   seedInfections,
   priorImmunity,
   fractionLatentThatIsInfectious,
-  relativeInfectivityPresymptomatic,
+  relativeInfectivityAsymptomatic,
   useCommunityMitigation,
   communityMitigationStartDay,
   communityMitigationDuration,
