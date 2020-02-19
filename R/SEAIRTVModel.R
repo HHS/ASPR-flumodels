@@ -13,8 +13,8 @@
 #' @param infectiousPeriod Infectious period in days; must be specified
 #' @param fractionLatentThatIsInfectious Fraction of latent period that is infectious; 
 #'   in the range 0 to 1 (inclusive), must be specified
-#' @param relativeInfectivityPresymptomatic Infectivitiy of the pre-symptomatic 
-#'   period, relative to the standard infectious period; defaults to 1
+#' @param relativeInfectivityAsymptomatic Infectivity of asymptomatic 
+#'   individuals, relative to symptomatic individuals; defaults to 1
 #' @param seedInfections Fraction of the population to seed with infections; 
 #'   single fraction or vector of fractions by population group; defaults to 0
 #' @param priorImmunity Fraction of the population with prior immunity; single 
@@ -79,7 +79,7 @@
 #' @export
 SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
                         latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-                        fractionLatentThatIsInfectious, relativeInfectivityPresymptomatic,
+                        fractionLatentThatIsInfectious, relativeInfectivityAsymptomatic,
                         useCommunityMitigation, communityMitigationStartDay,
                         communityMitigationDuration, communityMitigationMultiplier,
                         fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
@@ -125,7 +125,7 @@ SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
 #' @keywords internal
 checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, R0,
                                latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-                               fractionLatentThatIsInfectious, relativeInfectivityPresymptomatic,
+                               fractionLatentThatIsInfectious, relativeInfectivityAsymptomatic,
                                useCommunityMitigation, communityMitigationStartDay,
                                communityMitigationDuration, communityMitigationMultiplier,
                                fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
@@ -143,8 +143,8 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
     stop("fractionLatentThatIsInfectious must be specified.", call. = FALSE)
   }
   checkBetween0and1(fractionLatentThatIsInfectious)
-  #relativeInfectivityPresymptomatic
-  checkPositive(relativeInfectivityPresymptomatic)
+  #relativeInfectivityAsymptomatic
+  checkPositive(relativeInfectivityAsymptomatic)
   
   antiviralParameters <- do.call("checkInputs.Antiviral", argumentList)
   #Update arguments passed to checkInputs.Vaccine using SEIRParameters
@@ -158,11 +158,11 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
   SEIRParameters$lambda1 = 1 / ((1-fractionLatentThatIsInfectious) * latentPeriod)
   SEIRParameters$lambda2 = 1 / (fractionLatentThatIsInfectious * latentPeriod)
   SEIRParameters$fractionLatentThatIsInfectious = fractionLatentThatIsInfectious
-  SEIRParameters$relativeInfectivityPresymptomatic = relativeInfectivityPresymptomatic
+  SEIRParameters$relativeInfectivityAsymptomatic = relativeInfectivityAsymptomatic
   # If there are no community mitigations, eg contact matrix among presymptomatic class is the same as among symptomatic class
   SEIRParameters$beta = R0 / 
     max(Mod(eigen(
-        (infectiousPeriod + relativeInfectivityPresymptomatic / SEIRParameters$lambda2) * contactMatrix,
+        (infectiousPeriod + 1 / SEIRParameters$lambda2) * contactMatrix,
       symmetric = FALSE, only.values = TRUE
     )$values))
   #Return the parameters
@@ -176,10 +176,10 @@ checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, 
 getDerivative.SEAIRTV <- function(t, state, parameters) {
   stateList <- reconstructState.SEAIRV(state)
   with(append(stateList, parameters), {
-    contactMatrixWithCommunityMitigation <- contactMatrix
+    
     if (useCommunityMitigation) {
       if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay)) {
-        contactMatrixWithCommunityMitigation <- communityMitigationMultiplier * contactMatrix
+        contactMatrix <- communityMitigationMultiplier * contactMatrix
       } 
     }
 
@@ -192,16 +192,14 @@ getDerivative.SEAIRTV <- function(t, state, parameters) {
     }
     
     #Flows
-    # forceOfInfection <- beta / populationFractions * (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi) * Iv))))
     # Adjusted to account for VEp, which reduces the impact of AVEi since it, in essence, reduces fractionSymptomatic
-    forceOfInfection <- beta / populationFractions * (
-      contactMatrixWithCommunityMitigation %*% ((1 - AVEi.eff) * (I + (1 - VEi) * Iv) +
-                                                  VEp * AVEi.eff * (1 - VEi) * Iv) +
-        relativeInfectivityPresymptomatic * (
-          contactMatrix %*% ((1 - AVEi.eff) * (A + (1 - VEi) * Av) + 
-                             VEp * AVEi.eff * (1 - VEi) * Av)
-          )
-      )
+    forceOfInfection <- beta / populationFractions / (fractionSymptomatic + relativeInfectivityAsymptomatic - fractionSymptomatic * relativeInfectivityAsymptomatic) * 
+      (contactMatrix %*% (
+          (A + I) * (1 - fractionSymptomatic) * relativeInfectivityAsymptomatic + 
+            fractionSymptomatic * (A + Av*(1 - VEi) * (1 - VEp)) + 
+            (1 - AVEi.eff) * fractionSymptomatic * (I + Iv * (1 - VEi) * (1 - VEp)) + 
+            (Av + Iv) * relativeInfectivityAsymptomatic * (1 - VEi) * (1 - fractionSymptomatic + fractionSymptomatic * VEp)
+          ))
     
     S_to_E <- S * forceOfInfection
     E_to_A <- lambda1 * E
@@ -271,3 +269,100 @@ doSeed.SEAIRV <- function(state, parameters) {
     return(c(S, E, A, I, R, Sv, Ev, Av, Iv, Rv, V))
   })
 }
+
+#' #' @title Check antiviral treatment inputs
+#' #' @description Checks antiviral treatment inputs and computes the antiviral treatment parameters
+#' #' @return List of antiviral treatment parameters
+#' #' @keywords internal
+#' checkInputs.Antiviral <- function(populationFractions, fractionSymptomatic = 0.5,  fractionSeekCare = 0.6,
+#'                                   fractionDiagnosedAndPrescribedOutpatient = 0.7, fractionAdhere = 0.8,
+#'                                   fractionAdmitted = 1, fractionDiagnosedAndPrescribedInpatient = 1, AVEi = 0, AVEp = 0, ...) {
+#'   #Validate parameters
+#'   checkBetween0and1(fractionSymptomatic)
+#'   checkDimensionsMatch(fractionSymptomatic, populationFractions)
+#'   checkBetween0and1(fractionSeekCare)
+#'   checkDimensionsMatch(fractionSeekCare, populationFractions)
+#'   checkBetween0and1(fractionDiagnosedAndPrescribedOutpatient)
+#'   checkDimensionsMatch(fractionDiagnosedAndPrescribedOutpatient, populationFractions)
+#'   checkBetween0and1(fractionAdhere)
+#'   checkDimensionsMatch(fractionAdhere, populationFractions)
+#'   checkBetween0and1(fractionAdmitted)
+#'   checkDimensionsMatch(fractionAdmitted, populationFractions)
+#'   checkBetween0and1(fractionDiagnosedAndPrescribedInpatient)
+#'   checkDimensionsMatch(fractionDiagnosedAndPrescribedInpatient, populationFractions)
+#'   checkBetween0and1(AVEi)
+#'   checkDimensionsMatch(AVEi, populationFractions)
+#'   checkBetween0and1(AVEp)
+#'   checkDimensionsMatch(AVEp, populationFractions)
+#'   
+#'   AVEi.eff <- AVEi * fractionAdhere * fractionDiagnosedAndPrescribedOutpatient * fractionSeekCare * fractionSymptomatic
+#'   return(list(fractionSymptomatic = fractionSymptomatic, fractionSeekCare = fractionSeekCare, 
+#'               fractionDiagnosedAndPrescribedOutpatient = fractionDiagnosedAndPrescribedOutpatient, fractionAdhere = fractionAdhere,
+#'               fractionAdmitted = fractionAdmitted, fractionDiagnosedAndPrescribedInpatient = fractionDiagnosedAndPrescribedInpatient,
+#'               AVEi.eff = AVEi.eff, AVEp = AVEp))
+#' }
+#' 
+#' #' @title Check vaccine inputs
+#' #' @description Checks vaccine inputs and computes the vaccine parameters
+#' #' @return List of vaccine parameters
+#' #' @keywords internal
+#' checkInputs.Vaccine <- function(population, populationFractions, seedStartDay, simulationLength,
+#'                                 vaccineAdministrationRatePerDay = 0, vaccineAvailabilityByDay = 0,
+#'                                 vaccineUptakeMultiplier = 1, VEs = 0, VEi = 0, VEp = 0, 
+#'                                 vaccineEfficacyDelay = 7, ...) {
+#'   #Validate vaccine parameters
+#'   #vaccineAdministrationRatePerDay
+#'   checkNonNegativeNumber(vaccineAdministrationRatePerDay)
+#'   #vaccineAvailabilityByDay
+#'   checkNonNegative(vaccineAvailabilityByDay)
+#'   #vaccineUptakeMultiplier
+#'   checkNonNegative(vaccineUptakeMultiplier)
+#'   checkDimensionsMatch(vaccineUptakeMultiplier, populationFractions)
+#'   #VEs
+#'   checkBetween0and1(VEs)
+#'   checkDimensionsMatch(VEs, populationFractions)
+#'   #VEi
+#'   checkBetween0and1(VEi)
+#'   checkDimensionsMatch(VEi, populationFractions)
+#'   #VEp
+#'   checkBetween0and1(VEp)
+#'   checkDimensionsMatch(VEp, populationFractions)
+#'   #vaccineEfficacyDelay
+#'   checkNonNegativeNumber(vaccineEfficacyDelay)
+#'   
+#'   
+#'   #Compute the daily vaccination rate
+#'   totalSimulationLength <- seedStartDay + simulationLength
+#'   vaccinationRateByDay <- rep(0, totalSimulationLength)
+#'   currentVaccineAvailability <- 0
+#'   for (i in 1:totalSimulationLength) {
+#'     if (i <= length(vaccineAvailabilityByDay)){
+#'       currentVaccineAvailability <- currentVaccineAvailability + vaccineAvailabilityByDay[i]
+#'     }
+#'     vaccinationRateByDay[i] <- min(vaccineAdministrationRatePerDay, currentVaccineAvailability)
+#'     currentVaccineAvailability <- currentVaccineAvailability - vaccinationRateByDay[i]
+#'   }
+#'   vaccinationRateByDay <- vaccinationRateByDay / population #Normalize
+#'   
+#'   #Define vaccination rate function
+#'   vaccinationRate <- function(t) {
+#'     if ((t < vaccineEfficacyDelay) || (t >= totalSimulationLength + vaccineEfficacyDelay)) {
+#'       return(0)
+#'     } else {
+#'       return(vaccinationRateByDay[floor(t - vaccineEfficacyDelay + 1)])
+#'     }
+#'   }
+#'   
+#'   #Compute the vaccination rate age multiplier
+#'   vaccinationRateAgeMultiplier <- vaccineUptakeMultiplier * populationFractions
+#'   totalMultiplier <- sum(vaccinationRateAgeMultiplier)
+#'   if (totalMultiplier > 0) {
+#'     vaccinationRateAgeMultiplier <- vaccinationRateAgeMultiplier / totalMultiplier
+#'   } else {
+#'     warning("vaccineUptakeMultiplier prevents vaccination from occurring.", call. = FALSE)
+#'   }
+#'   
+#'   #Return the parameters
+#'   return(list(vaccinationRate = vaccinationRate, vaccinationRateAgeMultiplier = vaccinationRateAgeMultiplier,
+#'               VEs = VEs, VEi = VEi, VEp = VEp, vaccineEfficacyDelay = vaccineEfficacyDelay))
+#' }
