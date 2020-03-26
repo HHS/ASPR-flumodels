@@ -49,7 +49,7 @@ getActualRTimeSeries.SEIRTVModel <- function(model) {
 #' @keywords internal
 #' @export
 getActualRTimeSeries.SEAIRTVModel <- function(model) {
-  return(computeActualRTimeSeries(model, reconstructState.SEAIRTV, getDerivative.SEAIRTV))
+  return(computeActualRTimeSeries(model, reconstructState.SEAIRV, getDerivative.SEAIRTV))
 }
 
 #SEIRV2Dose

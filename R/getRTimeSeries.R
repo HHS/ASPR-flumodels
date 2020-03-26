@@ -63,6 +63,14 @@ getSusceptibilityVectorTimeSeries.SEIRVModel <- function(model) {
 }
 
 #' @rdname getSusceptibilityVectorTimeSeries
+#' @method getSusceptibilityVectorTimeSeries SEIRVModel
+#' @keywords internal
+#' @export
+getSusceptibilityVectorTimeSeries.SEAIRTVModel <- function(model) {
+  return(getSusceptibilityVectorTimeSeries.SEIRVModel(model))
+}
+
+#' @rdname getSusceptibilityVectorTimeSeries
 #' @method getSusceptibilityVectorTimeSeries SEIRV2DoseModel
 #' @keywords internal
 #' @export
@@ -133,7 +141,12 @@ getInfectiousnessVectorTimeSeries.SEIRTVModel <- function(model) {
 #' @keywords internal
 #' @export
 getInfectiousnessVectorTimeSeries.SEAIRTVModel <- function(model) {
-  getInfectiousnessVectorTimeSeries.SEIRTVModel(model)
+  ITimeSeries <- getCombinedTimeSeries(model, "A") + getCombinedTimeSeries(model, "I")
+  IvTimeSeries <- getCombinedTimeSeries(model, "Av") + getCombinedTimeSeries(model, "Iv")
+  return(sweep(ifelse(IvTimeSeries > 0,
+                      1 - (model$parameters$VEi * IvTimeSeries / (ITimeSeries + IvTimeSeries)),
+                      1),
+               2, 1 - model$parameters$AVEi.eff, "*"))
 }
 
 #' @rdname getInfectiousnessVectorTimeSeries

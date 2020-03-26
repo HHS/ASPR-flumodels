@@ -124,15 +124,15 @@ SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
 #' @return List of parameters for the SEAIR+V model
 #' @keywords internal
 checkInputs.SEAIRTV <- function(population, populationFractions, contactMatrix, R0,
-                               latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-                               fractionLatentThatIsInfectious, relativeInfectivityAsymptomatic,
-                               useCommunityMitigation, communityMitigationStartDay,
-                               communityMitigationDuration, communityMitigationMultiplier,
-                               fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
-                               fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
-                               vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-                               vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
-                               simulationLength, seedStartDay, tolerance, method) {
+                                latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+                                fractionLatentThatIsInfectious, relativeInfectivityAsymptomatic,
+                                useCommunityMitigation, communityMitigationStartDay,
+                                communityMitigationDuration, communityMitigationMultiplier,
+                                fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
+                                fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
+                                vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
+                                vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
+                                simulationLength, seedStartDay, tolerance, method) {
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments

@@ -42,7 +42,7 @@ getCompartments.SEAIRTVModel <- function(model, type) {
                 S          = c("S", "Sv"),
                 E          = c("E", "Ev"),
                 A          = c("A", "Av"),
-                I          = c("I", "Iv"),
+                I          = c("A", "Av", "I", "Iv"),
                 R          = c("R", "Rv"),
                 vaccinated = c("V")))
 }
