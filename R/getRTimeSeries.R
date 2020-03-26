@@ -11,6 +11,11 @@ getRTimeSeries <- function(model, actual = FALSE) {
   } else {
     susceptibilityVectorTimeSeries <- getSusceptibilityVectorTimeSeries(model)
     infectiousnessVectorTimeSeries <- getInfectiousnessVectorTimeSeries(model)
+    infectiousPeriod <- if ("SEIRModel" %in% class(model)) {
+      1 / model$parameters$gamma
+    } else {
+      1 / model$parameters$lambda2 + 1 / model$parameters$gamma
+    }
 
     compartmentLength <- length(model$parameters$populationFractions)
     contactMatrixArray <- array(model$parameters$contactMatrix,
@@ -27,7 +32,7 @@ getRTimeSeries <- function(model, actual = FALSE) {
         effectiveTransmissionMatrix <- t(t(susceptibilityVectorTimeSeries[x, ] * contactMatrixArray[, , x]) 
                                          * infectiousnessVectorTimeSeries[x, ])
         return(Mod(eigen(effectiveTransmissionMatrix, symmetric = FALSE, only.values = TRUE)$values)[1])
-      })) * model$parameters$beta / model$parameters$gamma
+      })) * model$parameters$beta * infectiousPeriod
     return(effectiveRTimeSeries)
   }
 }
