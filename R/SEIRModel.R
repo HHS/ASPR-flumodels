@@ -129,7 +129,7 @@ checkInputs.SEIR <- function(population = 1, populationFractions = 1, contactMat
       stop("communityMitigationDuration must be specified when using community mitigation.", 
         call. = FALSE)
     }
-    checkNonNegative(communityMitigationStartDay)
+    checkNonNegative(communityMitigationDuration)
     if (missing(communityMitigationMultiplier)) {
       stop("communityMitigationMultiplier must be specified when using community mitigation.", 
         call. = FALSE)
