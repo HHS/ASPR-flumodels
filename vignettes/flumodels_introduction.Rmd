@@ -1,0 +1,677 @@
+---
+title: 'Package Introduction: flumodels'
+author: "ASPR SIIM"
+date: "8/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+```
+
+## Overview
+
+This document will provide an overview of the `flumodels` package and its basic use.
+`flumodels` provides a collection of deterministic age-structured SEIR-type compartmental models that incorporation various interventions, including vaccine, antiviral treatment, and community mitigation.
+While the name and motivation for the package is focused  on modeling influenza, it can be adapted to other diseases for which such a model would be appropriate. The package employs an object-oriented design where the differential equations for each model are integrated at construction, and the resulting objects can be manipulated for plotting and data extraction.
+
+The library is loaded with a single command:
+
+```{r loading}
+library(flumodels)
+```
+
+## Basic SEIR Model
+
+The base model object in `flumodels` is `SEIRModel`. There are a few parameters than need to be specified in order to minimally parameterize the model - `R0`, `latentPeriod`, `infectiousPeriod`. The package documentation describes the meaning of each of these parameters, and they are named intuitively, with all time units being in days. `seedInfections` is also needed so that there will actually be some disease transmission.
+
+```{r}
+model <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5, seedInfections = 0.0001)
+
+print(model)
+```
+
+Note that the resulting model has a simple print description that describes the basic parameters and the attack rate. By default the model assumes a population of size 1, and all population-related parameters can thus be interpreted as relative fractions. In particular, in the command above, we are assuming that seed infections are 0.01% of the population.
+
+If you forget to specify a required parameter, the model will give you an error:
+
+```{r}
+tryCatch(model <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, seedInfections = 0.0001),
+         error = function(e) e)
+```
+
+You can plot any model with base R plotting:
+
+```{r}
+plot(model)
+```
+
+Note that the model has naturally selected a percent-based plotting scale as the underlying population is of  size 1, and it is interpreting all values as relative fractions.
+By default the package shows infection prevalence, but this can be controlled with parameters:
+
+```{r}
+plot(model, incidence = TRUE)
+```
+
+If you want to use actual population sizes, this can be controlled with the `population` parameter.
+Once you set a population, all population-related values have to be specified on that same scale.
+So, to seed 10,000 infections in a population of size 330 million we would use the following:
+
+```{r}
+model <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                   population = 330e6, seedInfections = 10000)
+
+plot(model, incidence = TRUE)
+```
+
+
+## Adding Age Structure
+
+`flumodels` was designed to make working with age/population-structured models very straightforward. Most parameters can be specified as vectors that allow for variation by age or other population group. To split the population into such subpopulations, we use the `populationFractions` parameter:
+
+```{r}
+model2 <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                    population = 330e6, seedInfections = 10000,
+                    populationFractions = c(0.25, 0.75))
+
+plot(model2, incidence = TRUE, populationLabels = c("Children", "Adults"))
+```
+
+Here we have notionally split the population into two groups, say 'Children' and 'Adults' that represent 1/4 and 3/4 of the population, respectively. We are using additional plotting options to apply these labels.
+
+By default the model will assume proportionate mixing between the age groups, and as such will not fundamentally alter the model dynamics. However, we can control this mixing by explicitly providing a contact matrix (via the `contactMatrix` parameter) that will provide the rates of potentially infectious contacts between age groups. The definition of the contact matrix is important - the row i and column j entry denotes the number of potentially infectious contacts a single individual from group j has with individuals from group i each day.
+
+Here we will notionally assume that children have higher rates of contact overall, and that both age groups have assortative mixing that is greater within their own age groups. To be specific, we will assume that children have 18 potentially infectious contacts with other children each day and 9 potentially infectious contacts with adults each day. Adults in turn will be assumed to have 3 potentially infectious contacts with children each day, and 12 potentially infectious contacts with other adults each day. All of these values will be rescaled by an overall transmissibility ratio to ensure that the model has the reproductive number specified in the parameters.
+
+```{r}
+model3 <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                    population = 330e6, seedInfections = 10000,
+                    populationFractions = c(0.25, 0.75),
+                    contactMatrix = matrix(c(18,  3,
+                                             9, 12), ncol = 2, byrow = TRUE))
+
+plot(model3, incidence = TRUE, populationLabels = c("Children", "Adults"))
+```
+
+As expected, note that the resulting model as lower overall incidence as compared to the non-age-structured model, and that peak incidence timing varies by age. Additionally, children bear a greater proportion of the infections relative to their population sizes as compared to adults.
+
+## Extracting Data
+
+The `flumodels` library has functions for easily extracting the number of infections, hospitalizations, and deaths from the resulting model. For example, to obtain the number of infections we can use the function `getInfections`:
+
+```{r}
+getInfections(model3)
+```
+
+By default this will return the values for each population group in actual case counts. If we are interested in rates we can use the `asRate` parameter - this normalized by the total population, and then adjust by the population fractions if we want the relative rates by age group:
+
+```{r}
+getInfections(model3, asRate = TRUE) / c(0.25, 0.75)
+```
+
+Thus we can directly witness the differential serologic burden by age group with children having more than twice the burden as adults relative to their population sizes in this notional scenario.
+
+Though the calculations are fairly trivial for this kind of model, we can also obtain the number of symptomatic cases (after specifying a fraction of cases that are symptomatic), and the number of hospitalizations/deaths by specifying the case-hospitalization/fatality ratio. For example, if we assume 65% of infections are symptomatic cases and a case-hospitalization ratio of 0.5%, we would use the `getHospitalizations` function to calculate:
+
+```{r}
+getHospitalizations(model3, fractionSymptomatic = 0.65, caseHospitalizationRatio = 0.005)
+```
+
+The use of the `getDeaths` function is completely analogous. Again, even though for this particular kind of model the calculations could be performed externally, once we include mitigation it will be important to use these functions as they will incorporate vaccine and treatment effects.
+
+We can extract time series data using built-in functions as well, such as `getInfectionTimeSeries`. These can be used for making plots in other packages, for example:
+
+```{r, message=FALSE}
+library(tidyverse)
+
+ggplot(
+  tibble(
+    Incidence = getInfectionTimeSeries(model3, byGroup = FALSE, incidence = TRUE),
+    Day = 1:length(Incidence) - 1
+  ) 
+) +
+  geom_line(aes(x = Day, y = Incidence), size = 1)  +
+  scale_y_continuous(labels = function(x) {x / 1e6}) +
+  labs(title = "Infection Incidence", y = "Incidence (Millions)") +
+  theme_bw()
+```
+
+## Advanced Data Extraction
+
+The raw model object is a list of two items: `parameters` and `rawOutput`. These can be used to inspect any give model and extract additional data. For example, the `parameters` object is a list of all of the specified, implied, and internally-calculated parameters for the model:
+
+```{r}
+model3$parameters
+```
+
+For example, here `beta` is the internally-calculated probability of transmission given potentially-infectious contact. `population` is as specified in the model construction, and `tolerance` is the numerical integration tolerance that was inferred to be the default value of 1e-8.
+
+The `rawOutput` field is a matrix of the raw integrated compartment values. The first column is the time in days, and the rest are fractions of the population, with each compartment (S, E, I, and R in this case) split into each population group:
+
+```{r, results='asis'}
+kable(model3$rawOutput[1:11,])
+```
+
+## Vaccine Mitigation
+
+We will now explore adding mitigation with vaccine. The modeling library supports both one- and two-dose vaccines, and allows the analyst to specify multiple dimensions of vaccine protection and uptake by age.
+For vaccine efficacy, the model includes
+
+* `VEs`: protection from infection for vaccinated susceptible individuals
+* `VEi`: prevention of transmission from vaccinated infected individuals
+* `VEp`: prevention of symptomatic illness in infected indivduals who were vaccinated prior to infection
+
+All of these parameters can be specified by age/population group.
+
+Vaccine availability can be specified as a function of time using the `vaccineAvailabilityByDay` parameter - this indicates the amount of vaccine added to the simulation on each day. Similarly, vaccine administration rates can be controlled with the `vaccineAdministrationRatePerDay` parameter. Vaccines will only be administered up to the maximum of the administration rate each day, and only if vaccine is available.
+
+The uptake of vaccine by age/population group can be controlled using the `vaccineUptakeMultiplier` - by default the model assumes that vaccine uptake will be proportional to population.
+
+Finally, the `vaccineEfficacyDelay` parameter controls the delay between vaccine administration and protection.
+
+
+### One Dose
+
+For our first example we will begin with the same modeling scenario as above, but notionally add 60M doses of vaccine available immediately, with 15M doses being available each week after 60 days for 16 weeks. Additionally, we will assume VEs of 25%, VEi of 5%, and VEp of 50% (all notionally) 14 days after administration, with vaccine administration rates of 15M per week.
+
+```{r}
+vaccineModel <- SEIRVModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                           population = 330e6, seedInfections = 10000,
+                           populationFractions = c(0.25, 0.75),
+                           contactMatrix = matrix(c(18,  3,
+                                                    9, 12), ncol = 2, byrow = TRUE),
+                           vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
+                           vaccineAdministrationRatePerDay = 15e6/7,
+                           VEs = 0.25,
+                           VEi = 0.05,
+                           VEp = 0.5,
+                           vaccineEfficacyDelay = 14,
+                           simulationLength = 300)
+
+plot(vaccineModel, incidence = TRUE)
+```
+
+For ease of comparison, we will plot both the base model and the vaccine-mitigated model in a single plot using ggplot:
+
+```{r}
+library(ggthemes)
+baseModel <- model3
+
+ggplot(
+  tibble(
+    Incidence = getInfectionTimeSeries(baseModel, byGroup = FALSE, incidence = TRUE),
+    Day = 1:length(Incidence) - 1,
+    Model = "Unmitigated"
+  ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(vaccineModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Vaccine"
+      )
+    )
+) +
+  geom_line(aes(x = Day, y = Incidence, color = Model), size = 1)  +
+  scale_y_continuous(labels = function(x) {x / 1e6}) +
+  scale_color_tableau() +
+  labs(title = "Infection Incidence", y = "Incidence (Millions)") +
+  theme_bw()
+```
+
+
+By visual inspection we can see that that this vaccine response has had some effect, but we can make this explicit by comparing infections.
+
+```{r}
+1 - getInfections(vaccineModel, byGroup = FALSE) / getInfections(baseModel, byGroup = FALSE)
+```
+
+So, indeed, this particular notional respose has prevented ~57% of all infections.
+If we make the same CHR and symptomatic assumptions as above, we can compare hospitalizations:
+
+```{r}
+fractionSymptomatic <- 0.65
+caseHospitalizationRatio <- 0.005
+
+1 - getHospitalizations(vaccineModel, fractionSymptomatic = fractionSymptomatic,
+                        caseHospitalizationRatio = caseHospitalizationRatio,
+                        byGroup = FALSE) / 
+  getHospitalizations(baseModel, fractionSymptomatic = fractionSymptomatic,
+                        caseHospitalizationRatio = caseHospitalizationRatio,
+                        byGroup = FALSE)
+```
+
+And, this response has prevented ~66% of all hospitalizations. This differential effect is due to the combined effect of the different dimensions of vaccine effectiveness - VEp is providing additional protection against symptomatic illness, including hospitalization.
+
+
+If we are interested in examining vaccine protection over time, we can extract this from the raw model data:
+
+```{r}
+ggplot(
+  tibble(Vaccinated = flumodels:::getCombinedTimeSeries(vaccineModel, "V") %>% rowSums(),
+         Day = 1:length(Vaccinated) - 1)
+) +
+  geom_line(aes(x = Day, y = Vaccinated), size = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Vaccinated Fraction over Time") +
+  theme_bw()
+```
+
+Here we can see how the initial bolus of vaccine is distributed over time limited by the vaccine adminstration rate. Note also that here the chart depicts the fraction of people actually protected by the vaccine, taking into account the delay for vaccine effectiveness.
+
+
+### Two Dose
+
+In many pandemic scenarios it may be necessary to consider a two-dose vaccine. For this case there are additional parametrization subtleties - the dimensions of vaccine effectiveness can be specified for each dose using `VEs1`, `VEs2`, `VEi1`, etc., and there is an additional delay between doses 1 and 2 given by `dose2Delay`. The model assumes that the delay for vaccine protection applies equally after doses 1 and 2.
+
+To illustrate this, we will modify our example above to assume that we must wait 3 weeks between the first and second dose, and that the first dose only provides minimal protection against infection and symptomatic disease, with `VEs1` and `VEp1` being 5%. We will assume `VEi1` is 0%, and this is the model default.
+
+```{r}
+vaccine2DoseModel <- SEIRV2DoseModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                                     population = 330e6, seedInfections = 10000,
+                                     populationFractions = c(0.25, 0.75),
+                                     contactMatrix = matrix(c(18,  3,
+                                                              9, 12), ncol = 2, byrow = TRUE),
+                                     vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
+                                     vaccineAdministrationRatePerDay = 15e6/7,
+                                     VEs1 = 0.05,
+                                     #VEi1 = 0 implicitly
+                                     VEp1 = 0.05,
+                                     VEs2 = 0.25,
+                                     VEi2 = 0.05,
+                                     VEp2 = 0.5,
+                                     dose2Delay = 21,
+                                     vaccineEfficacyDelay = 14,
+                                     simulationLength = 300)
+
+plot(vaccine2DoseModel, incidence = TRUE)
+```
+
+Naturally, as the nubmer of effective doses and vaccine administration has been halved, the overall vaccine impact in this scenario is significantly less than the corresponding one-dose model. Indeed here the mitigation is ~21% of infections:
+
+```{r}
+1 - getInfections(vaccine2DoseModel, byGroup = FALSE) / getInfections(baseModel, byGroup = FALSE)
+```
+
+
+### Modulating Vaccine Uptake and Efficacy by Age
+
+As we noted above, vaccine efficacy and uptake can be adjusted by age. This is accomplished by simple passing a vector of efficacies in place of a single number (with the same number of entries as the number of population groups). Vaccine uptake is adjusted by passing a multiplier that scales vaccine uptake by age proportionally. So, if we want to assume that children are twice as likely to receive a vaccine but that vaccine for children is only half as effective, here is how we would modify the first one-dose vaccine model:
+
+```{r}
+vaccineModelChildrenModified <- SEIRVModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                                           population = 330e6, seedInfections = 10000,
+                                           populationFractions = c(0.25, 0.75),
+                                           contactMatrix = matrix(c(18,  3,
+                                                                    9, 12), ncol = 2, byrow = TRUE),
+                                           vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
+                                           vaccineAdministrationRatePerDay = 15e6/7,
+                                           VEs = 0.25 * c(0.5, 1),
+                                           VEi = 0.05 * c(0.5, 1),
+                                           VEp = 0.5 * c(0.5, 1),
+                                           vaccineEfficacyDelay = 14,
+                                           vaccineUptakeMultiplier = c(2, 1),
+                                           simulationLength = 300)
+
+plot(vaccineModelChildrenModified, incidence = TRUE)
+```
+
+This would be expected to reduce the overall vaccine mitigation impact against infection, as indeed it does, with mitigation of ~45% instead of 56%.
+
+```{r}
+1 - getInfections(vaccineModelChildrenModified, byGroup = FALSE) / getInfections(baseModel, byGroup = FALSE)
+```
+
+### Prime-Boost and Monovalent Substitution Strategies
+
+`flumodels` also contains a vaccination model for considering prime-boost strategies where the vaccines used for each dose are not interchangeable. The parameterization is very comparable to the two-dose model case, but with vaccine availability specified by day for each vaccine. This model has only been used for specific excursions that were particularly focused on vaccine response, and in many cases the two-dose model can be used to accomplish a very similar result.
+
+Similarly, `flumodels` contains a vaccination model for considering a scenario where an initial dose is used exclusively until a matched monovalent is available at a later point in time. This is used to consider hypothetical seasonal scenarios where a mismatched vaccine may be substituted with a better match monovalent vaccine later in the vaccine response timeline. As with the prime-boost model this is not as commonly-used.
+
+## Antiviral Treatment
+
+The basic model in `flumodels` that includes antiviral treatment is the `SEIRTModel`. It allows for the treatment of inpatient and outpatient influenza cases with antiviral drugs, and the parameterization is aligned with several CDC antiviral treatment spreadsheet models that have been used to look at the impact of treatment (c.f. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4663971/).
+
+Because these models depend upon the diagnosis and treatment of symptomatic influenza cases, in contrast to the base `SEIR` and `SEIRV` models there are a number of parameters that control care-seeking, diagnosis, and admittance rates. In particular:
+
+* `fractionSymptomatic`: Fraction of the infections that are symptomatic cases
+  * default 0.5
+* `fractionSeekCare`: Fraction of the symptomatic cases that seek medical care
+  * default 0.6
+* `fractionDiagnosedAndPrescribedOutpatient`: Fraction of the outpatient medical care seeking cases that are diagnosed and prescribed antiviral drugs
+  * default 0.7
+* `fractionAdhere`: Fraction of the cases that are prescribed antiviral drugs that adhere to the regimen
+  * default 0.8
+* `fractionAdmitted`: Fraction of the cases that require hospitalization that are admitted
+  * default 1.0
+* `fractionDiagnosedAndPrescribedInpatient`: Fraction of the hospitalized cases that are diagnosed and prescribed antiviral drugs
+  * default 1.0
+  
+Note that the model allows for a distinction between cases that would require hospitalization from ones that would actually be admitted to a hospital in order to deal with limitations on capacity and other constraints. There are two dimensions of antiviral efficacy accounted for in the model:
+
+* `AVEi`: the reduction in probility of transmission from infected individuals taking antiviral drugs (due to outpatient use)
+* `AVEp`: the probability that antiviral treatment averts hospitalization and/or death
+
+Both of these default to 0. Note also that the choice of parameters here must take into account the efficacy of the drug itself together with the probability that treatment if it occurs will be timely enough to have such an effect. To illustrate the use of this model, we will add antiviral use to our base non-vaccine scenario, relying on the default care-seeking and diagnosis parameters asside from `fractionSymptomatic`. For illustration we will also assume that outpatient treatment slight reduces the risk of onward transmission for those treated by 10%, and that antiviral treatment prevents severe outcomes (including hospitalization and death) 40% of the time.
+
+```{r}
+antiviralModel = SEIRTModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                                           population = 330e6, seedInfections = 10000,
+                                           populationFractions = c(0.25, 0.75),
+                                           contactMatrix = matrix(c(18,  3,
+                                                                    9, 12), ncol = 2, byrow = TRUE),
+                            fractionSymptomatic = fractionSymptomatic,
+                            AVEi = 0.1,
+                            AVEp = 0.4,
+                            simulationLength = 300)
+
+plot(antiviralModel, incidence = TRUE)
+```
+
+By plotting several models together we can see that the antiviral mitigation has had some effect on the infection epidemic curve through `AVEi`:
+
+```{r}
+ggplot(
+  tibble(
+    Incidence = getInfectionTimeSeries(baseModel, byGroup = FALSE, incidence = TRUE),
+    Day = 1:length(Incidence) - 1,
+    Model = "Unmitigated"
+  ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(vaccineModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Vaccine"
+      )
+    ) %>%
+        bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(antiviralModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Antiviral"
+      )
+    ) %>%
+    mutate(Model = as_factor(Model)) # Control model order and hence color
+) +
+  geom_line(aes(x = Day, y = Incidence, color = Model), size = 1)  +
+  scale_y_continuous(labels = function(x) {x / 1e6}) +
+  scale_color_tableau() +
+  labs(title = "Infection Incidence", y = "Incidence (Millions)") +
+  theme_bw()
+```
+
+As a fraction of total infections, antiviral treatment prevents ~7.9%:
+
+```{r}
+1 - getInfections(antiviralModel, byGroup = FALSE) / getInfections(baseModel, byGroup = FALSE)
+```
+
+
+If we focus instead on hospitalizations (or deaths), we will see that the effect is larger (~20%):
+
+```{r}
+1 - getHospitalizations(antiviralModel,
+                        caseHospitalizationRatio = caseHospitalizationRatio,
+                        byGroup = FALSE) / 
+  getHospitalizations(baseModel, fractionSymptomatic = fractionSymptomatic,
+                        caseHospitalizationRatio = caseHospitalizationRatio,
+                        byGroup = FALSE)
+```
+
+As with the vaccine model, all of these parameters can be specified by age/population group by passing a vector for the given arguments.
+
+### Calculating Antivirals Used
+
+It is common to need to calculate the number of antiviral regimens used, and these data can be extracted from the model. The calculation needs to be performed in two parts, first for outpatients, and then for inpatients.
+The inpatient multiplier needs to use `AVEp` to reduce the number of inpatients by the impact of antiviral drugs on this severe outcome.
+
+```{r}
+
+# This is the multiplier that will determine what fraction of cases receive antiviral drugs
+outpatientMultiplier <- with(antiviralModel$parameters, {
+  fractionDiagnosedAndPrescribedOutpatient * fractionSeekCare
+})
+
+# This is the multiplier that will determine what fraction of cases result in inpatient treatment
+inpatientMultiplier <- with(antiviralModel$parameters, {
+  fractionDiagnosedAndPrescribedInpatient * caseHospitalizationRatio * fractionAdmitted *
+    # Adjusting for outpatient treatment reducing hospitalization
+    (1 - AVEp * fractionAdhere * outpatientMultiplier)
+})
+
+# These will be used to adjust regiments by treatment type
+outpatientRegimens <- 1
+inpatientRegimens <- 2
+
+# Apply these multipliers to the cumulative symptomatic case incidence time series
+#   Note: for simplicity we have ignored the seed infections, but these can be included as well
+antiviralUseData <- tibble(
+  cumulativeIncidence = c(0, cumsum(getInfectionTimeSeries(antiviralModel, incidence = TRUE,
+                                                           symptomatic = TRUE, byGroup = FALSE)[-1])),
+  `Cumulative Antiviral Regimens (M)` = cumulativeIncidence * (inpatientMultiplier * inpatientRegimens +
+                                                         outpatientMultiplier * outpatientRegimens) / 1e6,
+  Day = 1:length(cumulativeIncidence) - 1
+)
+
+ggplot(antiviralUseData) +
+  geom_line(aes(x = Day, y = `Cumulative Antiviral Regimens (M)`), size = 1) +
+  theme_bw()
+```
+
+In some calculations, people include additional multipliers for use of chemoprophylaxis, personal stockpiling, and other features that may impact the overall number of antiviral courses used. Furthermore, the calculation above needs to be modified carefully if the parameters will vary by age/population group. In particular, one would want to do the following:
+
+```{r}
+antiviralIncidenceByGroup <- getInfectionTimeSeries(antiviralModel, incidence = TRUE,
+                                                   symptomatic = TRUE, byGroup = TRUE)
+antiviralIncidenceByGroup[1, ] <- 0 # Make the first row zero for convenience
+
+# Multiply each row of the incidence matrix by the (potentially) population-group dependent multiplier
+antiviralRegimensByGroup <- t(t(antiviralIncidenceByGroup) * (inpatientMultiplier * inpatientRegimens +
+                                                               outpatientMultiplier * outpatientRegimens))
+
+cumulativeAntiviralRegimes <- cumsum(rowSums(antiviralRegimensByGroup))
+
+# This should match the calculation from above
+all.equal(cumulativeAntiviralRegimes, antiviralUseData$`Cumulative Antiviral Regimens (M)`*1e6)
+
+```
+
+## Community Mitigation
+
+`flumodels` also allows for simplistic approximations of community mitigation in each of the library models by allowing for modulation of the contact matrix during an interval of time. This modulation is controlled by passing a multiplier matrix that will be applied to the contact matrix elementwise during the specified interval.
+
+As an illustrative example, let us assume that starting on day 50 and continuing for 8 weeks there is a significant school closure policy in effect that notionally reduces child-child contact by 50%, but increases child-adult contact by 15%, and leaves adult-adult contact alone. This would result in the following:
+
+```{r}
+communityMitigationModel <- SEIRModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                                      population = 330e6, seedInfections = 10000,
+                                      populationFractions = c(0.25, 0.75),
+                                      contactMatrix = matrix(c(18,  3,
+                                                               9, 12), ncol = 2, byrow = TRUE),
+                                      useCommunityMitigation = TRUE,
+                                      communityMitigationStartDay = 50,
+                                      communityMitigationDuration = 8*7,
+                                      communityMitigationMultiplier = matrix(c(0.5,  1.15,
+                                                                               1.15, 1), ncol = 2,
+                                                                             byrow = TRUE),
+                                      simulationLength = 300)
+
+plot(communityMitigationModel)
+```
+
+We can see that this model has a delayed and somewhat lower peak as compared to the base case.
+Comparing all three mitigation models so far we can see the differences in impact on peak height and timing across these cases.
+
+```{r}
+ggplot(
+  tibble(
+    Incidence = getInfectionTimeSeries(baseModel, byGroup = FALSE, incidence = TRUE),
+    Day = 1:length(Incidence) - 1,
+    Model = "Unmitigated"
+  ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(vaccineModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Vaccine"
+      )
+    ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(antiviralModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Antiviral"
+      )
+    ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(communityMitigationModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Community Mitigation"
+      )
+    ) %>%
+    mutate(Model = as_factor(Model)) # Control model order and hence color
+) +
+  geom_line(aes(x = Day, y = Incidence, color = Model), size = 1)  +
+  scale_y_continuous(labels = function(x) {x / 1e6}) +
+  scale_color_tableau() +
+  labs(title = "Infection Incidence", y = "Incidence (Millions)") +
+  theme_bw()
+```
+
+
+## Combined Mitigations
+
+One of the particular benefits of an integrated modeling library like `flumodels` is that an analyst can easily model combinations of mitigations. Indeed, in this case we can simply add another model to our collection that combines all of these effects.
+
+```{r}
+combinationMitigationModel <- SEIRTVModel(R0 = 1.3, latentPeriod = 1.5, infectiousPeriod = 2.5,
+                                          population = 330e6, seedInfections = 10000,
+                                          populationFractions = c(0.25, 0.75),
+                                          contactMatrix = matrix(c(18,  3,
+                                                                   9, 12), ncol = 2, byrow = TRUE),
+                                          # Vaccine
+                                          vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
+                                          vaccineAdministrationRatePerDay = 15e6/7,
+                                          VEs = 0.25,
+                                          VEi = 0.05,
+                                          VEp = 0.5,
+                                          vaccineEfficacyDelay = 14,
+                                          # Antiviral
+                                          fractionSymptomatic = fractionSymptomatic,
+                                          AVEi = 0.1,
+                                          AVEp = 0.4,
+                                          # Community Mitigation
+                                          useCommunityMitigation = TRUE,
+                                          communityMitigationStartDay = 50,
+                                          communityMitigationDuration = 8*7,
+                                          communityMitigationMultiplier = matrix(c(0.5,  1.15,
+                                                                                   1.15, 1), ncol = 2,
+                                                                                 byrow = TRUE),
+                                          simulationLength = 500)
+
+plot(combinationMitigationModel)
+```
+
+At first glance it is clear that the combination of all of these notional mitigations has been very effective.
+At this scale we see a complex multiple-peak epidemic with community mitigation limiting incidence until vaccine is able to begin providing more durable protection.
+Once we combine all of the mitigated curves together for a comparison this particular feature is less apparent, but the overall impression is the same:
+
+```{r}
+ggplot(
+  tibble(
+    Incidence = getInfectionTimeSeries(baseModel, byGroup = FALSE, incidence = TRUE),
+    Day = 1:length(Incidence) - 1,
+    Model = "Unmitigated"
+  ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(vaccineModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Vaccine"
+      )
+    ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(antiviralModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Antiviral"
+      )
+    ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(communityMitigationModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Community Mitigation"
+      )
+    ) %>%
+    bind_rows(
+      tibble(
+        Incidence = getInfectionTimeSeries(combinationMitigationModel, byGroup = FALSE, incidence = TRUE),
+        Day = 1:length(Incidence) - 1,
+        Model = "Combined"
+      )
+    ) %>%
+    mutate(Model = as_factor(Model)) # Control model order and hence color
+) +
+  geom_line(aes(x = Day, y = Incidence, color = Model), size = 1)  +
+  scale_y_continuous(labels = function(x) {x / 1e6}) +
+  scale_color_tableau() +
+  coord_cartesian(xlim = c(0, 300)) +
+  labs(title = "Infection Incidence", y = "Incidence (Millions)") +
+  theme_bw()
+```
+
+## Reproductive Number and Prior Immunity
+
+The `flumodels` libary allows for the calculation of the reproductive number as a function of time in the underlying model to enable better understanding of the impact of mitigations on overall control. Here we examine this for the model that incorporates all mitigation combinations. We can see that vaccination causes a linear decrease in the reproductive number as as function of time, and that community mitigation creates a sharp discontinuity that reduces the reproductive number for a period of time. The remaining features of the curve are decreases in the effective reproductive number from depletion of susceptibles.
+
+```{r}
+ggplot(
+  tibble(
+    `R Effective` = getRTimeSeries(combinationMitigationModel),
+    Day = 1:length(`R Effective`) - 1
+  )
+) +
+  geom_line(aes(x = Day, y = `R Effective`), size = 1) +
+  geom_hline(yintercept = 1.0, linetype = "dotted") +
+  # Community Mitigation
+  geom_vline(xintercept = 50, linetype = "dashed") +
+  geom_vline(xintercept = 50 + 8*7, linetype = "dashed") +
+  annotate("text", x = 50 + 4*7, y = 1.25, label = "Community\nMitigation", size = 4) +
+  annotate("rect", xmin = 50, xmax = 50 + 8*7, ymin = 0.8, ymax = 1.3, fill = "red", alpha = 0.1) +
+  # Vaccine Mitigation
+  # Initial
+  geom_vline(xintercept = 0 + 14, linetype = "longdash") +
+  geom_vline(xintercept = 0 + 4*7 + 14, linetype = "longdash") +
+  annotate("text", x = 0 + 2*7 + 14, y = 1.15, label = "Initial\nVaccine", size = 4) +
+  annotate("rect", xmin = 0 + 14, xmax = 0 + 4*7 + 14, ymin = 0.8, ymax = 1.3, fill = "blue", alpha = 0.1) +
+  # Later
+  geom_vline(xintercept = 60 + 14, linetype = "longdash") +
+  geom_vline(xintercept = 60 + 16*7 + 14, linetype = "longdash") +
+  annotate("text", x = 60 + 8*7 + 14, y = 1.15, label = "Later\nVaccine", size = 4) +
+  annotate("rect", xmin = 60 + 14, xmax = 60 + 16*7 + 14, ymin = 0.8, ymax = 1.3, fill = "blue", alpha = 0.1) +
+  coord_cartesian(xlim = c(0, 250)) +
+  theme_bw()
+```
+
+The models also support the specification of prior immunity in the population by population group. For this fraction of the population, the members are assumed to be immune to infection. Note that the reproductive number specified by `R0` is in the absence of this prior immunity, as it reflects the theoretical reproductive number when infections are introduced into a completely susceptible population.
+
+So, the following produces a model with an effective reproductive number at time zero of 1.3 by assuming ~13.33% prior immunity with an R0 of 1.5:
+
+```{r}
+ggplot(
+  tibble(
+    `R Effective` = getRTimeSeries(
+      SEIRModel(
+        R0 = 1.5, latentPeriod = 1.5, infectiousPeriod = 2.5,
+        population = 330e6, seedInfections = 10000,
+        priorImmunity = 1 - (1.3 / 1.5)
+      )),
+    Day = 1:length(`R Effective`) - 1
+  )
+) +
+  geom_line(aes(x = Day, y = `R Effective`), size = 1) +
+  theme_bw()
+
+```
