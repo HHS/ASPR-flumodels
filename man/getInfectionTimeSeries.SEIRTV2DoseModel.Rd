@@ -4,9 +4,14 @@
 \alias{getInfectionTimeSeries.SEIRTV2DoseModel}
 \title{Get infection time series}
 \usage{
-\method{getInfectionTimeSeries}{SEIRTV2DoseModel}(model, byGroup = TRUE,
-  asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
-  byWeek = FALSE)
+\method{getInfectionTimeSeries}{SEIRTV2DoseModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  incidence = FALSE,
+  symptomatic = FALSE,
+  byWeek = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

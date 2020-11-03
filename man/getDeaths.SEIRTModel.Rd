@@ -4,8 +4,13 @@
 \alias{getDeaths.SEIRTModel}
 \title{Get deaths}
 \usage{
-\method{getDeaths}{SEIRTModel}(model, byGroup = TRUE, asRate = FALSE,
-  caseFatalityRatio, timeSeries = FALSE)
+\method{getDeaths}{SEIRTModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  caseFatalityRatio,
+  timeSeries = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

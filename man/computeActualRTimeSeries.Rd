@@ -12,8 +12,6 @@ computeActualRTimeSeries(model, reconstructState, getDerivative)
 \item{reconstructState}{A function that reconstructs the state of the model}
 
 \item{getDerivative}{A function that computes the derivative of the model}
-
-\item{model}{A flumodels model object}
 }
 \description{
 This is a helper function that implements the calculations in

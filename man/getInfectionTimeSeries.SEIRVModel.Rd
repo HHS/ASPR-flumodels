@@ -4,9 +4,15 @@
 \alias{getInfectionTimeSeries.SEIRVModel}
 \title{Get infection time series}
 \usage{
-\method{getInfectionTimeSeries}{SEIRVModel}(model, byGroup = TRUE,
-  asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
-  fractionSymptomatic, byWeek = FALSE)
+\method{getInfectionTimeSeries}{SEIRVModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  incidence = FALSE,
+  symptomatic = FALSE,
+  fractionSymptomatic,
+  byWeek = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

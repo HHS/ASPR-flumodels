@@ -4,21 +4,57 @@
 \alias{checkInputs.SEIRV}
 \title{Check SEIR+V inputs}
 \usage{
-checkInputs.SEIRV(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
-  simulationLength, seedStartDay, tolerance, method)
+checkInputs.SEIRV(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  VEs,
+  VEi,
+  VEp,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 
-checkInputs.SEIRV(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
-  simulationLength, seedStartDay, tolerance, method)
+checkInputs.SEIRV(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  VEs,
+  VEi,
+  VEp,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \value{
 List of parameters for the SEIR+V model

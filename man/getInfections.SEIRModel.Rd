@@ -4,8 +4,13 @@
 \alias{getInfections.SEIRModel}
 \title{Get infections}
 \usage{
-\method{getInfections}{SEIRModel}(model, byGroup = TRUE,
-  asRate = FALSE, symptomatic = FALSE, fractionSymptomatic)
+\method{getInfections}{SEIRModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  symptomatic = FALSE,
+  fractionSymptomatic
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

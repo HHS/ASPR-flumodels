@@ -12,4 +12,4 @@ Description: Provides several compartmental models for influenza that enable
     the consideration of various mitigation strategies including vaccines and
     antiviral drugs.
 License: BSD_2_clause
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1

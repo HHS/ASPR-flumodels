@@ -4,17 +4,44 @@
 \alias{SEIRTVPrimeBoostModel}
 \title{SEIR+TV Prime-Boost Model}
 \usage{
-SEIRTVPrimeBoostModel(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
-  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDayPrime,
-  vaccineAvailabilityByDayBoost, vaccineUptakeMultiplier, boostDelay, VEs1,
-  VEs2, VEi1, VEi2, VEp1, VEp2, vaccineEfficacyDelay, simulationLength,
-  seedStartDay, tolerance, method)
+SEIRTVPrimeBoostModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  fractionSymptomatic,
+  fractionSeekCare,
+  fractionDiagnosedAndPrescribedOutpatient,
+  fractionAdhere,
+  fractionAdmitted,
+  fractionDiagnosedAndPrescribedInpatient,
+  AVEi,
+  AVEp,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDayPrime,
+  vaccineAvailabilityByDayBoost,
+  vaccineUptakeMultiplier,
+  boostDelay,
+  VEs1,
+  VEs2,
+  VEi1,
+  VEi2,
+  VEp1,
+  VEp2,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

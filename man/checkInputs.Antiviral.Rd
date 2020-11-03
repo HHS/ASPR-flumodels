@@ -4,11 +4,18 @@
 \alias{checkInputs.Antiviral}
 \title{Check antiviral treatment inputs}
 \usage{
-checkInputs.Antiviral(populationFractions, fractionSymptomatic = 0.5,
+checkInputs.Antiviral(
+  populationFractions,
+  fractionSymptomatic = 0.5,
   fractionSeekCare = 0.6,
-  fractionDiagnosedAndPrescribedOutpatient = 0.7, fractionAdhere = 0.8,
-  fractionAdmitted = 1, fractionDiagnosedAndPrescribedInpatient = 1,
-  AVEi = 0, AVEp = 0, ...)
+  fractionDiagnosedAndPrescribedOutpatient = 0.7,
+  fractionAdhere = 0.8,
+  fractionAdmitted = 1,
+  fractionDiagnosedAndPrescribedInpatient = 1,
+  AVEi = 0,
+  AVEp = 0,
+  ...
+)
 }
 \value{
 List of antiviral treatment parameters

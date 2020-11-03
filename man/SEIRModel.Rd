@@ -4,11 +4,24 @@
 \alias{SEIRModel}
 \title{SEIR Model}
 \usage{
-SEIRModel(population, populationFractions, contactMatrix, R0, latentPeriod,
-  infectiousPeriod, seedInfections, priorImmunity, useCommunityMitigation,
-  communityMitigationStartDay, communityMitigationDuration,
-  communityMitigationMultiplier, simulationLength, seedStartDay, tolerance,
-  method)
+SEIRModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

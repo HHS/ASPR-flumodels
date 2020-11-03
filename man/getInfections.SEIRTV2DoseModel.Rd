@@ -4,8 +4,7 @@
 \alias{getInfections.SEIRTV2DoseModel}
 \title{Get infections}
 \usage{
-\method{getInfections}{SEIRTV2DoseModel}(model, byGroup = TRUE,
-  asRate = FALSE, symptomatic = FALSE)
+\method{getInfections}{SEIRTV2DoseModel}(model, byGroup = TRUE, asRate = FALSE, symptomatic = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}

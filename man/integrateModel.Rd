@@ -4,8 +4,15 @@
 \alias{integrateModel}
 \title{Integrate model}
 \usage{
-integrateModel(initialState, parameters, derivativeFunction, seedFunction,
-  rootFunction, eventFunction, method = "lsoda")
+integrateModel(
+  initialState,
+  parameters,
+  derivativeFunction,
+  seedFunction,
+  rootFunction,
+  eventFunction,
+  method = "lsoda"
+)
 }
 \arguments{
 \item{initialState}{The initial state of the model's ODE system prior to seeding}

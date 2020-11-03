@@ -4,14 +4,36 @@
 \alias{SEIRVPrimeBoostModel}
 \title{SEIR+V Prime-Boost Model}
 \usage{
-SEIRVPrimeBoostModel(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDayPrime,
-  vaccineAvailabilityByDayBoost, vaccineUptakeMultiplier, boostDelay, VEs1,
-  VEs2, VEi1, VEi2, VEp1, VEp2, vaccineEfficacyDelay, simulationLength,
-  seedStartDay, tolerance, method)
+SEIRVPrimeBoostModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDayPrime,
+  vaccineAvailabilityByDayBoost,
+  vaccineUptakeMultiplier,
+  boostDelay,
+  VEs1,
+  VEs2,
+  VEi1,
+  VEi2,
+  VEp1,
+  VEp2,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

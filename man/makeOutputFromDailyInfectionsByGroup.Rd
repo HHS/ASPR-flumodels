@@ -4,8 +4,13 @@
 \alias{makeOutputFromDailyInfectionsByGroup}
 \title{Get infection time series}
 \usage{
-makeOutputFromDailyInfectionsByGroup(model, dailyInfectionsByGroup,
-  byGroup, asRate, byWeek)
+makeOutputFromDailyInfectionsByGroup(
+  model,
+  dailyInfectionsByGroup,
+  byGroup,
+  asRate,
+  byWeek
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

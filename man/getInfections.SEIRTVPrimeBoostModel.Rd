@@ -4,8 +4,7 @@
 \alias{getInfections.SEIRTVPrimeBoostModel}
 \title{Get infections}
 \usage{
-\method{getInfections}{SEIRTVPrimeBoostModel}(model, byGroup = TRUE,
-  asRate = FALSE, symptomatic = FALSE)
+\method{getInfections}{SEIRTVPrimeBoostModel}(model, byGroup = TRUE, asRate = FALSE, symptomatic = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}

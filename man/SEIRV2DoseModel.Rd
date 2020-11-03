@@ -4,13 +4,35 @@
 \alias{SEIRV2DoseModel}
 \title{SEIR+V 2-dose Model}
 \usage{
-SEIRV2DoseModel(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, dose2Delay, VEs1, VEs2, VEi1, VEi2, VEp1, VEp2,
-  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
+SEIRV2DoseModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  dose2Delay,
+  VEs1,
+  VEs2,
+  VEi1,
+  VEi2,
+  VEp1,
+  VEp2,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

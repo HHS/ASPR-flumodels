@@ -4,9 +4,15 @@
 \alias{getInfectionTimeSeries.SEIRVMonoModel}
 \title{Get infection time series}
 \usage{
-\method{getInfectionTimeSeries}{SEIRVMonoModel}(model, byGroup = TRUE,
-  asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
-  fractionSymptomatic, byWeek = FALSE)
+\method{getInfectionTimeSeries}{SEIRVMonoModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  incidence = FALSE,
+  symptomatic = FALSE,
+  fractionSymptomatic,
+  byWeek = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

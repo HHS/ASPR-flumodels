@@ -4,8 +4,15 @@
 \alias{plot.SEIRTModel}
 \title{Plot}
 \usage{
-\method{plot}{SEIRTModel}(x, ..., asRate = FALSE, incidence = FALSE,
-  symptomatic = FALSE, normalizeRate = FALSE, populationLabels)
+\method{plot}{SEIRTModel}(
+  x,
+  ...,
+  asRate = FALSE,
+  incidence = FALSE,
+  symptomatic = FALSE,
+  normalizeRate = FALSE,
+  populationLabels
+)
 }
 \arguments{
 \item{x}{The model to plot}

@@ -3,7 +3,6 @@
 \docType{package}
 \name{flumodels}
 \alias{flumodels}
-\alias{flumodels-package}
 \title{Deterministic compartmental models for influenza with mitigations.}
 \description{
 Provides several compartmental models for influenza that enable

@@ -4,13 +4,35 @@
 \alias{checkInputs.SEIRV2Dose}
 \title{Check SEIR+V 2-dose inputs}
 \usage{
-checkInputs.SEIRV2Dose(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, dose2Delay, VEs1, VEs2, VEi1, VEi2, VEp1, VEp2,
-  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
+checkInputs.SEIRV2Dose(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  dose2Delay,
+  VEs1,
+  VEs2,
+  VEi1,
+  VEi2,
+  VEp1,
+  VEp2,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \value{
 List of parameters for the SEIR+V 2-dose model

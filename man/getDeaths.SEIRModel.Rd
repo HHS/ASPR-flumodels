@@ -4,8 +4,14 @@
 \alias{getDeaths.SEIRModel}
 \title{Get deaths}
 \usage{
-\method{getDeaths}{SEIRModel}(model, byGroup = TRUE, asRate = FALSE,
-  fractionSymptomatic, caseFatalityRatio, timeSeries = FALSE)
+\method{getDeaths}{SEIRModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  fractionSymptomatic,
+  caseFatalityRatio,
+  timeSeries = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

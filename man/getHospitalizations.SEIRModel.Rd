@@ -4,9 +4,14 @@
 \alias{getHospitalizations.SEIRModel}
 \title{Get hospitalizations}
 \usage{
-\method{getHospitalizations}{SEIRModel}(model, byGroup = TRUE,
-  asRate = FALSE, fractionSymptomatic, caseHospitalizationRatio,
-  timeSeries = FALSE)
+\method{getHospitalizations}{SEIRModel}(
+  model,
+  byGroup = TRUE,
+  asRate = FALSE,
+  fractionSymptomatic,
+  caseHospitalizationRatio,
+  timeSeries = FALSE
+)
 }
 \arguments{
 \item{model}{The model from which to get the data}

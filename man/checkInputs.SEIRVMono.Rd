@@ -4,14 +4,36 @@
 \alias{checkInputs.SEIRVMono}
 \title{Check SEIR+VM inputs}
 \usage{
-checkInputs.SEIRVMono(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityDose1ByDay,
-  vaccineAvailabilityDoseMByDay, vaccineUptakeMultiplier,
-  timeOfExclusiveMonovalent, VEs1, VEsM, VEi1, VEiM, VEp1, VEpM,
-  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
+checkInputs.SEIRVMono(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityDose1ByDay,
+  vaccineAvailabilityDoseMByDay,
+  vaccineUptakeMultiplier,
+  timeOfExclusiveMonovalent,
+  VEs1,
+  VEsM,
+  VEi1,
+  VEiM,
+  VEp1,
+  VEpM,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \value{
 List of parameters for the SEIR+V model

@@ -4,16 +4,43 @@
 \alias{SEIRTV2DoseModel}
 \title{SEIR+TV 2-dose Model}
 \usage{
-SEIRTV2DoseModel(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
-  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, dose2Delay, VEs1, VEs2, VEi1, VEi2, VEp1, VEp2,
-  vaccineEfficacyDelay, simulationLength, seedStartDay, tolerance, method)
+SEIRTV2DoseModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  fractionSymptomatic,
+  fractionSeekCare,
+  fractionDiagnosedAndPrescribedOutpatient,
+  fractionAdhere,
+  fractionAdmitted,
+  fractionDiagnosedAndPrescribedInpatient,
+  AVEi,
+  AVEp,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  dose2Delay,
+  VEs1,
+  VEs2,
+  VEi1,
+  VEi2,
+  VEp1,
+  VEp2,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

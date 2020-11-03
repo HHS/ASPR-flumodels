@@ -4,16 +4,39 @@
 \alias{checkInputs.SEIRTV}
 \title{Check SEIR+TV inputs}
 \usage{
-checkInputs.SEIRTV(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
-  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
-  simulationLength, seedStartDay, tolerance, method)
+checkInputs.SEIRTV(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  fractionSymptomatic,
+  fractionSeekCare,
+  fractionDiagnosedAndPrescribedOutpatient,
+  fractionAdhere,
+  fractionAdmitted,
+  fractionDiagnosedAndPrescribedInpatient,
+  AVEi,
+  AVEp,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  VEs,
+  VEi,
+  VEp,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \value{
 List of parameters for the SEIR+V model

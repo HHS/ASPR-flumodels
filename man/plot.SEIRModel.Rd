@@ -4,9 +4,17 @@
 \alias{plot.SEIRModel}
 \title{Plot}
 \usage{
-\method{plot}{SEIRModel}(x, y, ..., asRate = FALSE, incidence = FALSE,
-  symptomatic = FALSE, fractionSymptomatic, normalizeRate = FALSE,
-  populationLabels)
+\method{plot}{SEIRModel}(
+  x,
+  y,
+  ...,
+  asRate = FALSE,
+  incidence = FALSE,
+  symptomatic = FALSE,
+  fractionSymptomatic,
+  normalizeRate = FALSE,
+  populationLabels
+)
 }
 \arguments{
 \item{x}{The model to plot}

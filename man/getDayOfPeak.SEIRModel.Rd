@@ -4,8 +4,7 @@
 \alias{getDayOfPeak.SEIRModel}
 \title{Get day of peak}
 \usage{
-\method{getDayOfPeak}{SEIRModel}(model, incidence = FALSE,
-  symptomatic = FALSE)
+\method{getDayOfPeak}{SEIRModel}(model, incidence = FALSE, symptomatic = FALSE)
 }
 \arguments{
 \item{model}{The model from which to get the data}

@@ -5,19 +5,45 @@
 \alias{checkInputs.VaccinePrimeBoost}
 \title{Check prime-boost vaccine inputs}
 \usage{
-checkInputs.VaccinePrimeBoost(population, populationFractions,
-  seedStartDay, simulationLength, vaccineAdministrationRatePerDay = 0,
-  vaccineAvailabilityByDayPrime = 0, vaccineAvailabilityByDayBoost = 0,
-  vaccineUptakeMultiplier = 1, boostDelay = 14, VEs1 = 0, VEs2 = 0,
-  VEi1 = 0, VEi2 = 0, VEp1 = 0, VEp2 = 0,
-  vaccineEfficacyDelay = 7, ...)
+checkInputs.VaccinePrimeBoost(
+  population,
+  populationFractions,
+  seedStartDay,
+  simulationLength,
+  vaccineAdministrationRatePerDay = 0,
+  vaccineAvailabilityByDayPrime = 0,
+  vaccineAvailabilityByDayBoost = 0,
+  vaccineUptakeMultiplier = 1,
+  boostDelay = 14,
+  VEs1 = 0,
+  VEs2 = 0,
+  VEi1 = 0,
+  VEi2 = 0,
+  VEp1 = 0,
+  VEp2 = 0,
+  vaccineEfficacyDelay = 7,
+  ...
+)
 
-checkInputs.VaccinePrimeBoost(population, populationFractions,
-  seedStartDay, simulationLength, vaccineAdministrationRatePerDay = 0,
-  vaccineAvailabilityByDayPrime = 0, vaccineAvailabilityByDayBoost = 0,
-  vaccineUptakeMultiplier = 1, boostDelay = 14, VEs1 = 0, VEs2 = 0,
-  VEi1 = 0, VEi2 = 0, VEp1 = 0, VEp2 = 0,
-  vaccineEfficacyDelay = 7, ...)
+checkInputs.VaccinePrimeBoost(
+  population,
+  populationFractions,
+  seedStartDay,
+  simulationLength,
+  vaccineAdministrationRatePerDay = 0,
+  vaccineAvailabilityByDayPrime = 0,
+  vaccineAvailabilityByDayBoost = 0,
+  vaccineUptakeMultiplier = 1,
+  boostDelay = 14,
+  VEs1 = 0,
+  VEs2 = 0,
+  VEi1 = 0,
+  VEi2 = 0,
+  VEp1 = 0,
+  VEp2 = 0,
+  vaccineEfficacyDelay = 7,
+  ...
+)
 }
 \value{
 List of prime-boost vaccine parameters

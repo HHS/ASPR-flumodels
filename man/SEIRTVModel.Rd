@@ -4,16 +4,39 @@
 \alias{SEIRTVModel}
 \title{SEIR+TV Model}
 \usage{
-SEIRTVModel(population, populationFractions, contactMatrix, R0,
-  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-  useCommunityMitigation, communityMitigationStartDay,
-  communityMitigationDuration, communityMitigationMultiplier,
-  fractionSymptomatic, fractionSeekCare,
-  fractionDiagnosedAndPrescribedOutpatient, fractionAdhere,
-  fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
-  vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
-  vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
-  simulationLength, seedStartDay, tolerance, method)
+SEIRTVModel(
+  population,
+  populationFractions,
+  contactMatrix,
+  R0,
+  latentPeriod,
+  infectiousPeriod,
+  seedInfections,
+  priorImmunity,
+  useCommunityMitigation,
+  communityMitigationStartDay,
+  communityMitigationDuration,
+  communityMitigationMultiplier,
+  fractionSymptomatic,
+  fractionSeekCare,
+  fractionDiagnosedAndPrescribedOutpatient,
+  fractionAdhere,
+  fractionAdmitted,
+  fractionDiagnosedAndPrescribedInpatient,
+  AVEi,
+  AVEp,
+  vaccineAdministrationRatePerDay,
+  vaccineAvailabilityByDay,
+  vaccineUptakeMultiplier,
+  VEs,
+  VEi,
+  VEp,
+  vaccineEfficacyDelay,
+  simulationLength,
+  seedStartDay,
+  tolerance,
+  method
+)
 }
 \arguments{
 \item{population}{Size of population; defaults to 1}

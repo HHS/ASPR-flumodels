@@ -4,15 +4,35 @@
 \alias{checkInputs.Vaccine}
 \title{Check vaccine inputs}
 \usage{
-checkInputs.Vaccine(population, populationFractions, seedStartDay,
-  simulationLength, vaccineAdministrationRatePerDay = 0,
-  vaccineAvailabilityByDay = 0, vaccineUptakeMultiplier = 1, VEs = 0,
-  VEi = 0, VEp = 0, vaccineEfficacyDelay = 7, ...)
+checkInputs.Vaccine(
+  population,
+  populationFractions,
+  seedStartDay,
+  simulationLength,
+  vaccineAdministrationRatePerDay = 0,
+  vaccineAvailabilityByDay = 0,
+  vaccineUptakeMultiplier = 1,
+  VEs = 0,
+  VEi = 0,
+  VEp = 0,
+  vaccineEfficacyDelay = 7,
+  ...
+)
 
-checkInputs.Vaccine(population, populationFractions, seedStartDay,
-  simulationLength, vaccineAdministrationRatePerDay = 0,
-  vaccineAvailabilityByDay = 0, vaccineUptakeMultiplier = 1, VEs = 0,
-  VEi = 0, VEp = 0, vaccineEfficacyDelay = 7, ...)
+checkInputs.Vaccine(
+  population,
+  populationFractions,
+  seedStartDay,
+  simulationLength,
+  vaccineAdministrationRatePerDay = 0,
+  vaccineAvailabilityByDay = 0,
+  vaccineUptakeMultiplier = 1,
+  VEs = 0,
+  VEi = 0,
+  VEp = 0,
+  vaccineEfficacyDelay = 7,
+  ...
+)
 }
 \value{
 List of vaccine parameters
