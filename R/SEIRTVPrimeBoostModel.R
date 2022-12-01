@@ -91,55 +91,59 @@ SEIRTVPrimeBoostModel <- function(population, populationFractions, contactMatrix
                                   useCommunityMitigation, communityMitigationStartDay,
                                   communityMitigationDuration, communityMitigationMultiplier,
                                   fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
-                             	  fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
+                                  fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
                                   vaccineAdministrationRatePerDay, vaccineAvailabilityByDayPrime,
                                   vaccineAvailabilityByDayBoost, vaccineUptakeMultiplier, boostDelay,
                                   VEs1, VEs2, VEi1, VEi2, VEp1, VEp2, vaccineEfficacyDelay,
-                                  simulationLength, seedStartDay, tolerance, method) {
+                                  simulationLength, seedStartDay, tolerance, method)
+{
   #Check inputs #TODO: Add checks for all inputs
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
   parameters <- do.call("checkInputs.SEIRTVPrimeBoost", argumentList) #Get parameters from checked inputs
   
-  initialState <- with(parameters, {
-    c(S   = (1 - priorImmunity) * populationFractions,
-      E   = 0 * populationFractions,
-      I   = 0 * populationFractions,
-      R   = priorImmunity * populationFractions,
-      Sv  = 0 * populationFractions,
-      Ev  = 0 * populationFractions,
-      Iv  = 0 * populationFractions,
-      Rv  = 0 * populationFractions,
-      Svb = 0 * populationFractions,
-      Evb = 0 * populationFractions,
-      Ivb = 0 * populationFractions,
-      Rvb = 0 * populationFractions,
-      V   = 0 * populationFractions,
-      Vb  = 0 * populationFractions,
-      vaccinatingPrime = rep(1, length(populationFractions)),
-      vaccinatingBoost = rep(0, length(populationFractions)))
-  })
+  initialState <- with(parameters,
+                       {
+                         c(S   = (1 - priorImmunity) * populationFractions,
+                           E   = 0 * populationFractions,
+                           I   = 0 * populationFractions,
+                           R   = priorImmunity * populationFractions,
+                           Sv  = 0 * populationFractions,
+                           Ev  = 0 * populationFractions,
+                           Iv  = 0 * populationFractions,
+                           Rv  = 0 * populationFractions,
+                           Svb = 0 * populationFractions,
+                           Evb = 0 * populationFractions,
+                           Ivb = 0 * populationFractions,
+                           Rvb = 0 * populationFractions,
+                           V   = 0 * populationFractions,
+                           Vb  = 0 * populationFractions,
+                           vaccinatingPrime = rep(1, length(populationFractions)),
+                           vaccinatingBoost = rep(0, length(populationFractions)))
+                       })
   
-  rootFunction <- function(t, state, parameters) {
+  rootFunction <- function(t, state, parameters)
+  {
     stateList <- reconstructState.SEIRVPrimeBoost(state)
     with(append(stateList, parameters), {
       return(c(ifelse(vaccinatingPrime > 0, populationFractions - V - tolerance, 1),
                ifelse(vaccinatingBoost > 0, V - Vb - tolerance, 1),
                ifelse(V - Vb - tolerance > tolerance & vaccinatingBoost <= 0, 0, 1)))
-      })
+    })
   }
-  eventFunction <- function(t, state, parameters) {
+  eventFunction <- function(t, state, parameters)
+  {
     stateList <- reconstructState.SEIRVPrimeBoost(state)
     with(append(stateList, parameters), {
       state[getLabels("vaccinatingPrime", length(populationFractions))] <-
-          ifelse(populationFractions - V > tolerance, 1, 0)
+        ifelse(populationFractions - V > tolerance, 1, 0)
       state[getLabels("vaccinatingBoost", length(populationFractions))] <-
-          ifelse(V - Vb > tolerance, 1, 0)
+        ifelse(V - Vb > tolerance, 1, 0)
       return(state)
-      })
+    })
   }
-
+  
   rawOutput <- integrateModel(initialState = initialState,
                               parameters = parameters,
                               derivativeFunction = getDerivative.SEIRTVPrimeBoost,
@@ -164,11 +168,12 @@ checkInputs.SEIRTVPrimeBoost <- function(population, populationFractions, contac
                                          useCommunityMitigation, communityMitigationStartDay,
                                          communityMitigationDuration, communityMitigationMultiplier,
                                          fractionSymptomatic,  fractionSeekCare, fractionDiagnosedAndPrescribedOutpatient,
-                             	  		 fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
+                                         fractionAdhere, fractionAdmitted, fractionDiagnosedAndPrescribedInpatient, AVEi, AVEp,
                                          vaccineAdministrationRatePerDay, vaccineAvailabilityByDayPrime,
                                          vaccineAvailabilityByDayBoost, vaccineUptakeMultiplier, boostDelay,
                                          VEs1, VEs2, VEi1, VEi2, VEp1, VEp2, vaccineEfficacyDelay,
-                                         simulationLength, seedStartDay, tolerance, method) {
+                                         simulationLength, seedStartDay, tolerance, method)
+{
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
@@ -180,6 +185,7 @@ checkInputs.SEIRTVPrimeBoost <- function(population, populationFractions, contac
   argumentList$seedStartDay <- SEIRParameters$seedStartDay
   argumentList$simulationLength <- SEIRParameters$simulationLength
   vaccinePrimeBoostParameters <- do.call("checkInputs.VaccinePrimeBoost", argumentList)
+  
   #Return the parameters
   return(c(SEIRParameters, antiviralParameters, vaccinePrimeBoostParameters))
 }
@@ -192,7 +198,8 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
                                           vaccineAdministrationRatePerDay = 0, vaccineAvailabilityByDayPrime = 0,
                                           vaccineAvailabilityByDayBoost = 0, vaccineUptakeMultiplier = 1,
                                           boostDelay = 14, VEs1 = 0, VEs2 = 0, VEi1 = 0, VEi2 = 0,
-                                          VEp1 = 0, VEp2 = 0, vaccineEfficacyDelay = 7, ...) {
+                                          VEp1 = 0, VEp2 = 0, vaccineEfficacyDelay = 7, ...)
+{
   #Validate vaccine parameters
   #vaccineAdministrationRatePerDay
   checkNonNegativeNumber(vaccineAdministrationRatePerDay)
@@ -214,7 +221,7 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
   #VEp1
   checkBetween0and1(VEp1)
   checkDimensionsMatch(VEp1, populationFractions)
-   #VEs2
+  #VEs2
   checkBetween0and1(VEs2)
   checkDimensionsMatch(VEs2, populationFractions)
   #VEi2
@@ -225,7 +232,7 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
   checkDimensionsMatch(VEp2, populationFractions)
   #vaccineEfficacyDelay
   checkNonNegativeNumber(vaccineEfficacyDelay)
-
+  
   #Compute the daily vaccination rates for priming and boost doses
   totalSimulationLength <- seedStartDay + simulationLength
   vaccinationRatePrimeByDay <- rep(0, totalSimulationLength)
@@ -234,11 +241,14 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
   currentVaccineAvailabilityBoost <- 0
   newPrimedToBoost <- rep(0, totalSimulationLength)
   currentPrimedToBoost <- 0
-  for (i in 1:totalSimulationLength) {
-    if (i <= length(vaccineAvailabilityByDayPrime)){
+  for (i in 1:totalSimulationLength)
+  {
+    if (i <= length(vaccineAvailabilityByDayPrime))
+    {
       currentVaccineAvailabilityPrime <- currentVaccineAvailabilityPrime + vaccineAvailabilityByDayPrime[i] 
     }
-    if (i <= length(vaccineAvailabilityByDayBoost)){
+    if (i <= length(vaccineAvailabilityByDayBoost))
+    {
       currentVaccineAvailabilityBoost <- currentVaccineAvailabilityBoost + vaccineAvailabilityByDayBoost[i] 
     }
     currentPrimedToBoost <- currentPrimedToBoost + newPrimedToBoost[i]
@@ -246,7 +256,7 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
     vaccinationRateBoostByDay[i] <- min(vaccineAdministrationRatePerDay, currentVaccineAvailabilityBoost,
                                         currentPrimedToBoost)
     vaccinationRatePrimeByDay[i] <- max(min(vaccineAdministrationRatePerDay, currentVaccineAvailabilityPrime) -
-                                              vaccinationRateBoostByDay[i], 0)
+                                          vaccinationRateBoostByDay[i], 0)
     newPrimedToBoost[i + boostDelay] <- vaccinationRatePrimeByDay[i] #Works if boostDelay >=1
     currentPrimedToBoost <- currentPrimedToBoost - vaccinationRateBoostByDay[i]
     currentVaccineAvailabilityPrime <- currentVaccineAvailabilityPrime - vaccinationRatePrimeByDay[i]
@@ -256,10 +266,14 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
   vaccinationRateBoostByDay <- vaccinationRateBoostByDay / population
   
   #Define vaccination rate functions
-  vaccinationRatePrime <- function(t) {
-    if ((t < vaccineEfficacyDelay) || (t >= totalSimulationLength + vaccineEfficacyDelay)) {
+  vaccinationRatePrime <- function(t)
+  {
+    if ((t < vaccineEfficacyDelay) || (t >= totalSimulationLength + vaccineEfficacyDelay))
+    {
       return(0)
-    } else {
+    }
+    else
+    {
       return(vaccinationRatePrimeByDay[floor(t - vaccineEfficacyDelay + 1)])
     }
   }
@@ -280,7 +294,7 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
   } else {
     warning("vaccineUptakeMultiplier prevents vaccination from occurring.", call. = FALSE)
   }
-
+  
   #Return the parameters
   return(list(vaccinationRatePrime = vaccinationRatePrime,
               vaccinationRateBoost = vaccinationRateBoost,
@@ -293,80 +307,90 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
 #parameters should define populationFractions, contactMatrix, beta, lambda, gamma,
 #VEs1, VEi1, VEs2, VEi2, VEp1, VEp2, and the functions vaccinationRatePrime(t) and vaccinationRateBoost(t)
 #Note that the total population is normalized to be 1
-getDerivative.SEIRTVPrimeBoost <- function(t, state, parameters) {
+getDerivative.SEIRTVPrimeBoost <- function(t, state, parameters)
+{
   stateList <- reconstructState.SEIRVPrimeBoost(state)
-  with(append(stateList, parameters), {
-    if (useCommunityMitigation) {
-      if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay)) {
-        contactMatrix <- communityMitigationMultiplier * contactMatrix
-      } 
-    }
-
-    isVaccinatingPrimeByAge <- (vaccinatingPrime > 0) & (populationFractions - V > 0)
-    effectiveVaccinationPrimeMultiplier <- sum(ifelse(isVaccinatingPrimeByAge, 1, 0) * vaccinationRateAgeMultiplier)
-    if (effectiveVaccinationPrimeMultiplier > 0) {
-      vaccinationRatePrimeByAge <- vaccinationRatePrime(t) * vaccinationRateAgeMultiplier /
-                                     effectiveVaccinationPrimeMultiplier
-    } else {
-      vaccinationRatePrimeByAge <- 0
-    }
-
-    isVaccinatingBoostByAge <- (vaccinatingBoost > 0) & (V - Vb > 0)
-    effectiveVaccinationBoostMultiplier <- sum(ifelse(isVaccinatingBoostByAge, 1, 0) * vaccinationRateAgeMultiplier)
-    if (effectiveVaccinationBoostMultiplier > 0) {
-      vaccinationRateBoostByAge <- vaccinationRateBoost(t) * vaccinationRateAgeMultiplier /
-                                     effectiveVaccinationBoostMultiplier
-    } else {
-      vaccinationRateBoostByAge <- 0
-    }
-
-    #Flows
-    # Adjusted to account for VEp, which reduces the impact of AVEi since it, in essence, reduces fractionSymptomatic
-    #     forceOfInfection <- beta / populationFractions * 
-    #                         (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi1) * Iv) + ((1 - VEi2) * Ivb))))  
-    forceOfInfection <- beta / populationFractions * 
-      (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi1) * Iv) + ((1 - VEi2) * Ivb)) + VEp1 * AVEi.eff * (1 - VEi1) * Iv +
-         VEp2 * AVEi.eff * (1 - VEi2) * Ivb))
-    
-    S_to_E <- S * forceOfInfection
-    E_to_I <- lambda * E
-    I_to_R <- gamma * I
-    
-    Sv_to_Ev <- Sv * (1 - VEs1) * forceOfInfection
-    Ev_to_Iv <- lambda * Ev
-    Iv_to_Rv <- gamma * Iv
-    
-    Svb_to_Evb <- Svb * (1 - VEs2) * forceOfInfection
-    Evb_to_Ivb <- lambda * Evb
-    Ivb_to_Rvb <- gamma * Ivb
-
-    S_to_Sv <-  ifelse(isVaccinatingPrimeByAge, vaccinationRatePrimeByAge * S / (populationFractions - V), 0)
-    Sv_to_Svb <-  ifelse(isVaccinatingBoostByAge, vaccinationRateBoostByAge * Sv / (V - Vb), 0)
-    
-    #Derivatives
-    #Non-vaccinated compartments
-    dS <- -S_to_E - S_to_Sv
-    dE <- S_to_E - E_to_I
-    dI <- E_to_I - I_to_R
-    dR <- I_to_R
-    #Vaccinated compartments
-    dSv <- -Sv_to_Ev + S_to_Sv - Sv_to_Svb
-    dEv <- Sv_to_Ev - Ev_to_Iv
-    dIv <- Ev_to_Iv - Iv_to_Rv
-    dRv <- Iv_to_Rv
-
-    dSvb <- -Svb_to_Evb + Sv_to_Svb
-    dEvb <- Svb_to_Evb - Evb_to_Ivb
-    dIvb <- Evb_to_Ivb - Ivb_to_Rvb
-    dRvb <- Ivb_to_Rvb
-    #Auxiliary vaccinated compartment - people with a priming dose
-    dV <- ifelse(isVaccinatingPrimeByAge, vaccinationRatePrimeByAge, 0)
-    #Auxiliary vaccinated compartment - people with a boosting dose
-    dVb <- ifelse(isVaccinatingBoostByAge, vaccinationRateBoostByAge, 0)
-
-    zeroVec <- 0 * populationFractions
-    
-    #Return derivative
-    return(list(c(dS, dE, dI, dR, dSv, dEv, dIv, dRv, dSvb, dEvb, dIvb, dRvb, dV, dVb, zeroVec, zeroVec)))
-  })
+  with(append(stateList, parameters),
+       {
+         if (useCommunityMitigation)
+         {
+           if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay))
+           {
+             contactMatrix <- communityMitigationMultiplier * contactMatrix
+           } 
+         }
+         
+         isVaccinatingPrimeByAge <- (vaccinatingPrime > 0) & (populationFractions - V > 0)
+         effectiveVaccinationPrimeMultiplier <- sum(ifelse(isVaccinatingPrimeByAge, 1, 0) * vaccinationRateAgeMultiplier)
+         if (effectiveVaccinationPrimeMultiplier > 0)
+         {
+           vaccinationRatePrimeByAge <- vaccinationRatePrime(t) * vaccinationRateAgeMultiplier /
+             effectiveVaccinationPrimeMultiplier
+         }
+         else
+         {
+           vaccinationRatePrimeByAge <- 0
+         }
+         
+         isVaccinatingBoostByAge <- (vaccinatingBoost > 0) & (V - Vb > 0)
+         effectiveVaccinationBoostMultiplier <- sum(ifelse(isVaccinatingBoostByAge, 1, 0) * vaccinationRateAgeMultiplier)
+         if (effectiveVaccinationBoostMultiplier > 0)
+         {
+           vaccinationRateBoostByAge <- vaccinationRateBoost(t) * vaccinationRateAgeMultiplier /
+             effectiveVaccinationBoostMultiplier
+         }
+         else
+         {
+           vaccinationRateBoostByAge <- 0
+         }
+         
+         #Flows
+         # Adjusted to account for VEp, which reduces the impact of AVEi since it, in essence, reduces fractionSymptomatic
+         #     forceOfInfection <- beta / populationFractions * 
+         #                         (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi1) * Iv) + ((1 - VEi2) * Ivb))))  
+         forceOfInfection <- beta / populationFractions * 
+           (contactMatrix %*% ((1 - AVEi.eff) * (I + ((1 - VEi1) * Iv) + ((1 - VEi2) * Ivb)) + VEp1 * AVEi.eff * (1 - VEi1) * Iv +
+                                 VEp2 * AVEi.eff * (1 - VEi2) * Ivb))
+         
+         S_to_E <- S * forceOfInfection
+         E_to_I <- lambda * E
+         I_to_R <- gamma * I
+         
+         Sv_to_Ev <- Sv * (1 - VEs1) * forceOfInfection
+         Ev_to_Iv <- lambda * Ev
+         Iv_to_Rv <- gamma * Iv
+         
+         Svb_to_Evb <- Svb * (1 - VEs2) * forceOfInfection
+         Evb_to_Ivb <- lambda * Evb
+         Ivb_to_Rvb <- gamma * Ivb
+         
+         S_to_Sv <-  ifelse(isVaccinatingPrimeByAge, vaccinationRatePrimeByAge * S / (populationFractions - V), 0)
+         Sv_to_Svb <-  ifelse(isVaccinatingBoostByAge, vaccinationRateBoostByAge * Sv / (V - Vb), 0)
+         
+         #Derivatives
+         #Non-vaccinated compartments
+         dS <- -S_to_E - S_to_Sv
+         dE <- S_to_E - E_to_I
+         dI <- E_to_I - I_to_R
+         dR <- I_to_R
+         #Vaccinated compartments
+         dSv <- -Sv_to_Ev + S_to_Sv - Sv_to_Svb
+         dEv <- Sv_to_Ev - Ev_to_Iv
+         dIv <- Ev_to_Iv - Iv_to_Rv
+         dRv <- Iv_to_Rv
+         
+         dSvb <- -Svb_to_Evb + Sv_to_Svb
+         dEvb <- Svb_to_Evb - Evb_to_Ivb
+         dIvb <- Evb_to_Ivb - Ivb_to_Rvb
+         dRvb <- Ivb_to_Rvb
+         #Auxiliary vaccinated compartment - people with a priming dose
+         dV <- ifelse(isVaccinatingPrimeByAge, vaccinationRatePrimeByAge, 0)
+         #Auxiliary vaccinated compartment - people with a boosting dose
+         dVb <- ifelse(isVaccinatingBoostByAge, vaccinationRateBoostByAge, 0)
+         
+         zeroVec <- 0 * populationFractions
+         
+         #Return derivative
+         return(list(c(dS, dE, dI, dR, dSv, dEv, dIv, dRv, dSvb, dEvb, dIvb, dRvb, dV, dVb, zeroVec, zeroVec)))
+       })
 }
