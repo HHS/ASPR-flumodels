@@ -28,6 +28,9 @@ for(R0_value in R0_list)
 
       par_tibble_list[[qq]] <- tibble(index = qq,
                                       R0 = R0_value,
+                                      latentPeriod = latentPeriod_value,
+                                      infectiousPeriod = infectiousPeriod_value,
+                                      model= list(model))
       print(qq)
     }
   }
