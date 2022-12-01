@@ -3,12 +3,12 @@ library(magrittr)
 library(purrr)
 library(flumodels)
 
-R0_list <- c(1,1.25,1.5,2.0,3,5,7,8,10,25,50)
+R0_list <- c(1.5,2.0,3,5,7,8,10,15,25)
 
 model_list <- list()
 qq <- 0L
-latentPeriod_list <- c(0.5,1,2,3,5,7,14)
-infectiousPeriod_list <- c(0.5,1,2,3,5,7,14)
+latentPeriod_list <- c(1,2,3,5,7,10,12,14)
+infectiousPeriod_list <- c(1,2,3,5,7,10,12,14)
 par_tibble_list <- list()
 for(R0_value in R0_list)
 {
