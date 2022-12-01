@@ -34,6 +34,6 @@ for(R0_value in R0_list)
 
   
 }
-par_tibble <- par_tibble_list %>% bind_rows()
-#write_csv(x = par_tibble,file = "CSV_par_tibble_sweep_1_R0_restricted_2 to 10_November_30_2022/par_tibble.csv")
-write_rds(x = par_tibble,file = "sweep_1_RDS_mark2_November_30_2022/model_data.rds")
+par_tibble_list <- par_tibble_list %>% bind_rows()
+
+write_rds(x = par_tibble_list,file = "sweeps/sweep_SEIR_RDS_November_30_2022/model_data.rds")
