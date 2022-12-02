@@ -1,4 +1,4 @@
-find_time_of_peak_infections <- function(x)
+find_time_of_peak_for_given_state <- function(x,state_variable_name)
 {
   require(tidyverse)
   require(magrittr)
@@ -7,10 +7,10 @@ find_time_of_peak_infections <- function(x)
   df <- df$rawOutput
   
   df %<>% as_tibble()
-  I_state <- df %>% pull(I)
-  max_index <- which.max(I_state)
+  state_vector <- df %>% pull(state_variable_name)
+  max_index <- which.max(state_vector)
   time_vector <- df %>% pull(time)
-  
-  x$time_of_peak_infections <- time_vector[max_index]
+  time_to_max_name <- sprintf("t_%s_max",state_variable_name)
+  x[[time_to_max_name]]<- time_vector[max_index]
   return(x)
 }
