@@ -3,18 +3,18 @@ library(magrittr)
 library(purrr)
 library(flumodels)
 
-R0_list <- c(5,10,25)
+R0_list <- c(7,15,25)
 
 model_list <- list()
 qq <- 0L
-latentPeriod_list <- c(7,14)
-infectiousPeriod_list <- c(7,14)
-VEs_list <- c(0.3,0.9)
-VEi_list <- c(0.3,0.9)
-VEp_list <- c(0.3,0.9)
+latentPeriod_list <- c(7)
+infectiousPeriod_list <- c(7)
+VEs_list <- c(0.5,0.9)
+VEi_list <- c(0.5,0.9)
+VEp_list <- c(0.5,0.9)
 
 par_tibble_list <- list()
-vaccineEfficacyDelay_list <- c(7,14,30) #1 week, 2 weeks, 1 month)
+vaccineEfficacyDelay_list <- c(7) #1 week, 2 weeks, 1 month)
 for(R0_value in R0_list)
 {
   for(latentPeriod_value in latentPeriod_list)
