@@ -32,8 +32,8 @@ plot_SEIRV <- function(x)
   
   p1 <- p1 + geom_line(alpha=0.6,size=1.0)
   
-  LINES <- c("S" = "solid","E" = "longdash","I" = "twodash","R" = "dotted","V" = "solid",
-             "Sv" = "solid","Ev" = "longdash","Iv" = "twodash","Rv" = "dotted")
+  LINES <- c("S" = "solid","E" = "solid","I" = "solid","R" = "solid","V" = "dotted",
+             "Sv" = "solid","Ev" = "solid","Iv" = "solid","Rv" = "solid")
   p1 <- p1 + scale_linetype_manual(values = LINES)
   COLORS <- c("S" = "red", "E" = "blue", "I" = "green", "R" = "magenta","V" = "orange",
               "Sv" = "red","Ev" = "blue","Iv" = "green","Rv" = "magenta")
@@ -46,14 +46,11 @@ plot_SEIRV <- function(x)
   }
   
   p1 <- p1 + geom_hline(yintercept = 0.5,color="black",alpha=0.5,size = 0.5,linetype="dotted")
-  title_string <- sprintf("SEIRV, R0 = %0.5g, latent = %0.5g, infectious = %0.5g, VEs = %0.5g, VEi = %0.5g, VEp = %0.5g, vax_eff_delay = %0.5g",
+  title_string <- sprintf("SEIRV, R0 = %0.5g, VEs = %0.5g, VEi = %0.5g, VEp = %0.5g",
                           x$R0,
-                          x$latentPeriod,
-                          x$infectiousPeriod,
                           x$VEs,
                           x$VEi,
-                          x$VEp,
-                          x$vaccineEfficacyDelay)
+                          x$VEp)
   
   p1 <- p1 + facet_wrap(~vaccination_status,nrow=2,labeller = as_labeller(vax_names)) 
   p1 <- p1 + ggtitle(title_string)
