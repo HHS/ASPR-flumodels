@@ -6,6 +6,7 @@
 \alias{getInfectiousnessVectorTimeSeries.SEIRTModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRVModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRTVModel}
+\alias{getInfectiousnessVectorTimeSeries.SEAIRTVModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRV2DoseModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRTV2DoseModel}
 \alias{getInfectiousnessVectorTimeSeries.SEIRVMonoModel}
@@ -21,6 +22,8 @@ getInfectiousnessVectorTimeSeries(model)
 \method{getInfectiousnessVectorTimeSeries}{SEIRVModel}(model)
 
 \method{getInfectiousnessVectorTimeSeries}{SEIRTVModel}(model)
+
+\method{getInfectiousnessVectorTimeSeries}{SEAIRTVModel}(model)
 
 \method{getInfectiousnessVectorTimeSeries}{SEIRV2DoseModel}(model)
 

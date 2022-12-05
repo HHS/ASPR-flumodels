@@ -2,11 +2,16 @@
 % Please edit documentation in R/print.R
 \name{print.SEIRModel}
 \alias{print.SEIRModel}
+\alias{print.SEAIRTVModel}
 \title{Print}
 \usage{
 \method{print}{SEIRModel}(x, ...)
+
+\method{print}{SEAIRTVModel}(x, ...)
 }
 \description{
 Prints a brief summary of a SEIRModel object.
+
+Prints a brief summary of a SEAIRTVModel object.
 }
 \keyword{internal}

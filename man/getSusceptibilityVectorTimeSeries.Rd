@@ -4,6 +4,7 @@
 \alias{getSusceptibilityVectorTimeSeries}
 \alias{getSusceptibilityVectorTimeSeries.SEIRModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRVModel}
+\alias{getSusceptibilityVectorTimeSeries.SEAIRTVModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRV2DoseModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRVMonoModel}
 \alias{getSusceptibilityVectorTimeSeries.SEIRVPrimeBoostModel}
@@ -12,6 +13,8 @@
 getSusceptibilityVectorTimeSeries(model)
 
 \method{getSusceptibilityVectorTimeSeries}{SEIRModel}(model)
+
+\method{getSusceptibilityVectorTimeSeries}{SEIRVModel}(model)
 
 \method{getSusceptibilityVectorTimeSeries}{SEIRVModel}(model)
 

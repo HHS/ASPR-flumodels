@@ -112,3 +112,19 @@ getDeaths.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFata
     }
   }
 }
+
+#SEAIRTV
+#' @title Get deaths
+#' @description Gets the total deaths from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param caseFatalityRatio The fraction of cases that result in fatalities; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
+#' @return A vector of deaths or death rates
+#' @method getDeaths SEAIRTVModel
+#' @keywords internal
+#' @export
+getDeaths.SEAIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, caseFatalityRatio, timeSeries = FALSE) {
+  getDeaths.SEIRTModel(model, byGroup, asRate, caseFatalityRatio, timeSeries)
+}

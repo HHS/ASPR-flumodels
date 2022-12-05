@@ -5,6 +5,7 @@
 #' \itemize{
 #'  \item \code{\link{plot.SEIRModel}} for SEIR-type models
 #'  \item \code{\link{plot.SEIRTModel}} for SEIRT-type models
+#'  \item \code{\link{plot.SEAIRTVModel}} for SEAIRTV-type models
 #' }
 #' @usage plot(x, y, ...)
 #' @param x The model to plot
@@ -140,4 +141,25 @@ plot.SEIRTModel <- function(x, ..., asRate = FALSE, incidence = FALSE, symptomat
                             normalizeRate = FALSE, populationLabels) {
   plot.SEIRModel(x, asRate, incidence, symptomatic, fractionSymptomatic = x$parameters$fractionSymptomatic,
                  normalizeRate, populationLabels)
+}
+
+#' @title Plot
+#' @description Plot the model
+#' @param x The model to plot
+#' @param y Unused
+#' @param asRate Whether to plot rates (fractions of population) or else
+#'   numbers; defaults to FALSE unless model population is 1
+#' @param incidence If true, plots incidence, otherwise plots prevalence;
+#'   defaults to FALSE
+#' @param symptomatic Whether or not to only plot symptomatic infections; defaults to FALSE
+#' @param normalizeRate Whether or not to normalize rates by population;
+#'   defaults to FALSE
+#' @param populationLabels Labels for the population groups; optional
+#' @method plot SEAIRTVModel
+#' @keywords internal
+#' @export
+plot.SEAIRTVModel <- function(x, ..., asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
+                            normalizeRate = FALSE, populationLabels) {
+  plot.SEIRTModel(x, ..., asRate = FALSE, incidence = FALSE, symptomatic = FALSE,
+                                normalizeRate = FALSE, populationLabels)
 }

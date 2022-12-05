@@ -7,6 +7,7 @@
 #'  \item \code{\link{getInfectionTimeSeries.SEIRV2DoseModel}} for SEIRV2Dose-type models
 #'  \item \code{\link{getInfectionTimeSeries.SEIRTModel}} for SEIRT-type models
 #'  \item \code{\link{getInfectionTimeSeries.SEIRTVModel}} for SEIRTV-type models
+#'  \item \code{\link{getInfectionTimeSeries.SEAIRTVModel}} for SEAIRTV-type models
 #'  \item \code{\link{getInfectionTimeSeries.SEIRTV2DoseModel}} for SEIRTV2Dose-type models
 #' }
 #' @param model A flumodels model object
@@ -234,6 +235,26 @@ getInfectionTimeSeries.SEIRTModel <- function(model, byGroup = TRUE, asRate = FA
 #' @keywords internal
 #' @export
 getInfectionTimeSeries.SEIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, incidence = FALSE,
+                                               symptomatic = FALSE, byWeek = FALSE) {
+  return(getInfectionTimeSeries.SEIRVModel(model, byGroup, asRate, incidence, symptomatic,
+                                           fractionSymptomatic = model$parameters$fractionSymptomatic,
+                                           byWeek))
+}
+
+#SEAIRTV
+#' @title Get infection time series
+#' @description Gets the time series of infections from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param incidence If true, returns infection incidence, otherwise returns infection prevalence; defaults to FALSE
+#' @param symptomatic Whether or not to only report symptomatic infections; defaults to FALSE
+#' @param byWeek If true, returns the output on a weekly, not daily basis; defaults to FALSE
+#' @return A matrix that contains the infections by simulation day (or week, if byWeek is selected)
+#' @method getInfectionTimeSeries SEAIRTVModel
+#' @keywords internal
+#' @export
+getInfectionTimeSeries.SEAIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, incidence = FALSE,
                                                symptomatic = FALSE, byWeek = FALSE) {
   return(getInfectionTimeSeries.SEIRVModel(model, byGroup, asRate, incidence, symptomatic,
                                            fractionSymptomatic = model$parameters$fractionSymptomatic,

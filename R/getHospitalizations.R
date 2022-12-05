@@ -108,3 +108,19 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
     }
   }
 }
+
+#SEAIRTV
+#' @title Get hospitalizations
+#' @description Gets the total hospitalizations from the given model
+#' @param model The model from which to get the data
+#' @param byGroup Whether or not to return data by population group; defaults to TRUE
+#' @param asRate Whether to return results as a rate (fraction of population) or else a number; defaults to FALSE
+#' @param caseHospitalizationRatio The fraction of cases that are hospitalized; single fraction or vector of fractions by population group; must be specified
+#' @param timeSeries Whether to return a time series or a final cumulative value
+#' @return A vector of hospitalizations or hospitalization rates
+#' @method getHospitalizations SEAIRTVModel
+#' @keywords internal
+#' @export
+getHospitalizations.SEAIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, caseHospitalizationRatio, timeSeries = FALSE) {
+  getHospitalizations.SEIRTModel(model, byGroup, asRate, caseHospitalizationRatio, timeSeries)
+}

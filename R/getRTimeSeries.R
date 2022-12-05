@@ -11,6 +11,11 @@ getRTimeSeries <- function(model, actual = FALSE) {
   } else {
     susceptibilityVectorTimeSeries <- getSusceptibilityVectorTimeSeries(model)
     infectiousnessVectorTimeSeries <- getInfectiousnessVectorTimeSeries(model)
+    infectiousPeriod <- if ("SEIRModel" %in% class(model)) {
+      1 / model$parameters$gamma
+    } else {
+      1 / model$parameters$lambda2 + 1 / model$parameters$gamma
+    }
 
     compartmentLength <- length(model$parameters$populationFractions)
     contactMatrixArray <- array(model$parameters$contactMatrix,
@@ -27,7 +32,7 @@ getRTimeSeries <- function(model, actual = FALSE) {
         effectiveTransmissionMatrix <- t(t(susceptibilityVectorTimeSeries[x, ] * contactMatrixArray[, , x]) 
                                          * infectiousnessVectorTimeSeries[x, ])
         return(Mod(eigen(effectiveTransmissionMatrix, symmetric = FALSE, only.values = TRUE)$values)[1])
-      })) * model$parameters$beta / model$parameters$gamma
+      })) * model$parameters$beta * infectiousPeriod
     return(effectiveRTimeSeries)
   }
 }
@@ -60,6 +65,14 @@ getSusceptibilityVectorTimeSeries.SEIRVModel <- function(model) {
   SvTimeSeries <- getCombinedTimeSeries(model, "Sv")
   return(sweep(STimeSeries + (1 - model$parameters$VEs) * SvTimeSeries,
                2, model$parameters$populationFractions, "/"))
+}
+
+#' @rdname getSusceptibilityVectorTimeSeries
+#' @method getSusceptibilityVectorTimeSeries SEIRVModel
+#' @keywords internal
+#' @export
+getSusceptibilityVectorTimeSeries.SEAIRTVModel <- function(model) {
+  return(getSusceptibilityVectorTimeSeries.SEIRVModel(model))
 }
 
 #' @rdname getSusceptibilityVectorTimeSeries
@@ -122,6 +135,19 @@ getInfectiousnessVectorTimeSeries.SEIRVModel <- function(model) {
 getInfectiousnessVectorTimeSeries.SEIRTVModel <- function(model) {
   ITimeSeries <- getCombinedTimeSeries(model, "I")
   IvTimeSeries <- getCombinedTimeSeries(model, "Iv")
+  return(sweep(ifelse(IvTimeSeries > 0,
+                      1 - (model$parameters$VEi * IvTimeSeries / (ITimeSeries + IvTimeSeries)),
+                      1),
+               2, 1 - model$parameters$AVEi.eff, "*"))
+}
+
+#' @rdname getInfectiousnessVectorTimeSeries
+#' @method getInfectiousnessVectorTimeSeries SEAIRTVModel
+#' @keywords internal
+#' @export
+getInfectiousnessVectorTimeSeries.SEAIRTVModel <- function(model) {
+  ITimeSeries <- getCombinedTimeSeries(model, "A") + getCombinedTimeSeries(model, "I")
+  IvTimeSeries <- getCombinedTimeSeries(model, "Av") + getCombinedTimeSeries(model, "Iv")
   return(sweep(ifelse(IvTimeSeries > 0,
                       1 - (model$parameters$VEi * IvTimeSeries / (ITimeSeries + IvTimeSeries)),
                       1),

@@ -43,6 +43,15 @@ getActualRTimeSeries.SEIRTVModel <- function(model) {
   return(computeActualRTimeSeries(model, reconstructState.SEIRV, getDerivative.SEIRTV))
 }
 
+#SEAIRTV
+#' @rdname getActualRTimeSeries
+#' @method getActualRTimeSeries SEAIRTVModel
+#' @keywords internal
+#' @export
+getActualRTimeSeries.SEAIRTVModel <- function(model) {
+  return(computeActualRTimeSeries(model, reconstructState.SEAIRV, getDerivative.SEAIRTV))
+}
+
 #SEIRV2Dose
 #' @rdname getActualRTimeSeries
 #' @method getActualRTimeSeries SEIRV2DoseModel
@@ -91,6 +100,11 @@ getActualRTimeSeries.SEIRVPrimeBoostModel <- function(model) {
 computeActualRTimeSeries <- function(model, reconstructState, getDerivative) {
   susceptibleCompartments <- getCompartments(model, "S")
   infectiousCompartments <- getCompartments(model, "I")
+  infectiousPeriod <- if ("SEIRModel" %in% class(model)) {
+    1 / model$parameters$gamma
+  } else {
+    1 / model$parameters$lambda2 + 1 / model$parameters$gamma
+  }
   return(apply(model$rawOutput, 1,
                function(row) {
                  state <- reconstructState(row[-1])
@@ -100,7 +114,7 @@ computeActualRTimeSeries <- function(model, reconstructState, getDerivative) {
                  infections <- do.call(sum, state[infectiousCompartments])
                  return(ifelse(infections > 0,
                                -do.call(sum, derivatives[susceptibleCompartments]) / infections 
-                               / model$parameters$gamma,
+                               * infectiousPeriod,
                                NA))
                }))
 }
