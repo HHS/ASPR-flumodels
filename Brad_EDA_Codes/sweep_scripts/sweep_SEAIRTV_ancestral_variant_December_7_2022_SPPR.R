@@ -1,0 +1,132 @@
+library(tidyverse)
+library(magrittr)
+library(purrr)
+library(flumodels)
+
+#Get the census data first.
+k1 <- read_csv("../../Input_Data/fipsCensusSingleYearData/county_population_by_age_StandardCovidVaccineAgeGroups_2022-06-09.csv",col_types = "cfi")
+k1 %<>% mutate(age_group = fct_recode(age_group,
+                                      `12-17` = "12-15",
+                                      `12-17` = "16-17",
+                                      `18-49` = "18-24",
+                                      `18-49` = "25-39",
+                                      `18-49` = "40-49",
+                                      `50-64` = "50-64",
+                                      `65+` = "65-74",
+                                      `65+` = "75-99")) %>% group_by(fips_code,age_group) %>% summarize(population = sum(population))
+
+load("../../Input_Data/stateFipsCrosswalk/stateFipsCrosswalk.RData")
+
+g1 <- stateFipsCrosswalk
+g1 %<>% mutate(fips_code = as.integer(fips_code))
+g1 %<>% mutate(fips_code = as.character(fips_code))
+states <- g1$state
+names(states) <- (stateFipsCrosswalk$fips_code %>% as.integer %>% as.character)
+k1$state <- states[k1$fips_code]
+
+k1 %<>% ungroup()
+k1 %<>% group_by(age_group,state)
+k1 %<>% summarize(population = sum(population))
+
+k1 %<>% ungroup
+k1 %<>% rename(Location = state)
+k1 %<>% rename(AgeRange = age_group)
+k1 %<>% mutate(AgeRange = as.ordered(AgeRange))
+
+k1 %<>% ungroup()
+
+
+pop_by_age_bracket <- aggregate(k1$population,by = list(AgeRange = k1$AgeRange),FUN = sum)
+names(pop_by_age_bracket) <- c("AgeRange","Population")
+pop_by_age_bracket$Fraction <- pop_by_age_bracket$Population/sum(pop_by_age_bracket$Population)
+pop_by_age_bracket %<>% as_tibble()
+
+model_list <- list()
+
+population_list <- pop_by_age_bracket %>% pull(Fraction)
+  
+  
+R0_list <- c(2.5)
+latentPeriod_list <- 5.5
+infectiousPeriod_list <- c(3.0)
+fractionLatentThatIsInfectious_list <- c(0.4)
+relativeInfectivityAsymptomatic_list <- c(0.75)
+seedInfections_list <- c(0.0001)
+priorImmunity_list <- c(0)
+useCommunityMitigation_list <- TRUE
+communityMitigationStartDay_list <- c(14)
+communityMitigationDuration_list <- c(0.75)
+communityMitigationMultiplier_list <- c(0.75)
+fractionSymptomatic_list <- c(0.61, #0-4
+                              0.61, #5-11
+                              0.71, #12-17
+                              0.77, #18-49
+                              0.77, #50-64
+                              0.77) #65+
+fractionSeekCare_list <- c(0.6)
+fractionDiagnosedAndPrescribedOutpatient <- c(0.4)
+fractionAdhere <- c(1.0)
+fractionAdmittted <- c(1.0)
+fractionDiagnosedAndPrescribedInpatient <- c(0.4)
+AVEi_list <- c(0.0)
+AVEp_list <- c(0.7)
+vaccineAdministrationRatePerDay_list <- c(0.0)
+vaccineAvailabilityByDay_list <- c(3.3e8)
+#vaccineUptakeMultiplier_list <- c()
+VEs_list <- c(0.9)
+VEi_list <- c(0.0)
+VEp_list <- c(0.0)
+vaccineEfficacyDelay <- c(14)
+simulationLength <- c(180)
+seedStartDay <- 0
+tolerance <- 1e-8
+method <- "default"
+
+
+parameter_frame <- expand.grid(R0_list,
+                               latentPeriod_list,
+                               infectiousPeriod_list,
+                               fractionLatentThatIsInfectious_list,
+                               relativeInfectivityAsymptomatic_list,
+                               seedInfections_list,
+                               priorImmunity_list,
+                               useCommunityMitigation_list,
+                               communityMitigationStartDay_list,
+                               communityMitigationDuration_list,
+                               communityMitigationMultiplier_list,
+                               fractionSymptomatic_list,
+                               
+                               VEs_list,
+                               VEi_list,
+                               VEp_list) %>% as_tibble()
+names(parameter_frame) <- c("R0","VEs","VEi","VEp")
+num_rows <- nrow(parameter_frame)
+
+model_list <- list()
+
+for(i in 1:num_rows)
+{
+  print(sprintf("Running sweep %d out of %d.",i,num_rows))
+  data_row <- parameter_frame[i,]
+  R0_value <- data_row$R0
+  VEs_value <- data_row$VEs
+  VEi_value <- data_row$VEi
+  VEp_value <- data_row$VEp
+  
+  model <- SEIRVModel(R0 = R0_value,
+                      population = 330e6,
+                      seedInfections = 10000,
+                      latentPeriod = 7,
+                      infectiousPeriod = 7,
+                      vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
+                      vaccineAdministrationRatePerDay = 15e6/7,
+                      VEs = VEs_value,
+                      VEi = VEi_value,
+                      VEp = VEp_value,
+                      simulationLength = 365)
+  
+  model_list[[i]] <- model
+}
+
+full_tibble <- bind_cols(parameter_frame,tibble(model = model_list),index = 1:num_rows)
+write_rds(x = full_tibble,file = "sweeps/sweep_SEIRV_RDS_November_30_2022/model_data.rds")
