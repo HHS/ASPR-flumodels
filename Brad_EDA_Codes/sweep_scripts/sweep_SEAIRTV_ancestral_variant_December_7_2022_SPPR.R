@@ -57,12 +57,12 @@ useCommunityMitigation_list <- TRUE
 communityMitigationStartDay_list <- c(14)
 communityMitigationDuration_list <- c(0.75)
 communityMitigationMultiplier_list <- c(0.75)
-fractionSymptomatic_list <- c(0.61, #0-4
+fractionSymptomatic_list <- list(c(0.61, #0-4
                               0.61, #5-11
                               0.71, #12-17
                               0.77, #18-49
                               0.77, #50-64
-                              0.77) #65+
+                              0.77)) #65+
 fractionSeekCare_list <- c(0.6)
 fractionDiagnosedAndPrescribedOutpatient <- c(0.4)
 fractionAdhere <- c(1.0)
@@ -76,7 +76,7 @@ vaccineAvailabilityByDay_list <- c(3.3e8)
 VEs_list <- c(0.9)
 VEi_list <- c(0.0)
 VEp_list <- c(0.0)
-vaccineEfficacyDelay <- c(14)
+vaccineEfficacyDelay_list <- c(14)
 simulationLength <- c(180)
 seedStartDay <- 0
 tolerance <- 1e-8
@@ -95,11 +95,40 @@ parameter_frame <- expand.grid(R0_list,
                                communityMitigationDuration_list,
                                communityMitigationMultiplier_list,
                                fractionSymptomatic_list,
-                               
+                               fractionSeekCare_list,
+                               fractionDiagnosedAndPrescribedOutpatient,
+                               AVEi_list,
+                               AVEp_list,
+                               vaccineAdministrationRatePerDay_list,
+                               vaccineAvailabilityByDay_list,
                                VEs_list,
                                VEi_list,
-                               VEp_list) %>% as_tibble()
-names(parameter_frame) <- c("R0","VEs","VEi","VEp")
+                               VEp_list,
+                               vaccineEfficacyDelay_list) %>% as_tibble()
+names(parameter_frame) <- c("R0",
+                            "latentPeriod",
+                            "infectiousPeriod",
+                            "fractionLatentThatIsInfectious",
+                            "relativeInfectivityAsymptomatic",
+                            "seedInfections",
+                            "priorImmunity",
+                            "useCommunityMitigation",
+                            "communityMitigationStartDay",
+                            "communityMitigationDuration",
+                            "communityMitigationMultiplier",
+                            "fractionSymptomatic",
+                            "fractionSeekCare",
+                            "fractionDiagnosedAndPrescribedOutpatient",
+                            "AVEi",
+                            "AVEp",
+                            "vaccineAdministrationRatePerDay",
+                            "vaccineAvailabilityByDay",
+                            "VEs",
+                            "VEi",
+                            "VEp",
+                            "vaccineEfficacyDelay")
+
+stop()
 num_rows <- nrow(parameter_frame)
 
 model_list <- list()
