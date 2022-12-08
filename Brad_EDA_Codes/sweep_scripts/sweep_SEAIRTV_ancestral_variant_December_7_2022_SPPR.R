@@ -2,7 +2,8 @@ library(tidyverse)
 library(magrittr)
 library(purrr)
 library(flumodels)
-
+library(flumodelsutil)
+list.files("../../R/",full.names = TRUE) %>% sapply(FUN = source)
 #Get the census data first.
 k1 <- read_csv(file = "../../Input_Data/fipsCensusSingleYearData/county_population_by_age_StandardCovidVaccineAgeGroups_2022-06-09.csv",
                col_types = "cfi")
