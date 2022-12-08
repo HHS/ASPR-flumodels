@@ -4,7 +4,9 @@ library(purrr)
 library(flumodels)
 
 #Get the census data first.
-k1 <- read_csv("../../Input_Data/fipsCensusSingleYearData/county_population_by_age_StandardCovidVaccineAgeGroups_2022-06-09.csv",col_types = "cfi")
+k1 <- read_csv(file = "../../Input_Data/fipsCensusSingleYearData/county_population_by_age_StandardCovidVaccineAgeGroups_2022-06-09.csv",
+               col_types = "cfi")
+
 k1 %<>% mutate(age_group = fct_recode(age_group,
                                       `12-17` = "12-15",
                                       `12-17` = "16-17",
@@ -32,9 +34,7 @@ k1 %<>% ungroup
 k1 %<>% rename(Location = state)
 k1 %<>% rename(AgeRange = age_group)
 k1 %<>% mutate(AgeRange = as.ordered(AgeRange))
-
 k1 %<>% ungroup()
-
 
 pop_by_age_bracket <- aggregate(k1$population,by = list(AgeRange = k1$AgeRange),FUN = sum)
 names(pop_by_age_bracket) <- c("AgeRange","Population")
@@ -44,8 +44,7 @@ pop_by_age_bracket %<>% as_tibble()
 model_list <- list()
 
 population_list <- pop_by_age_bracket %>% pull(Fraction)
-  
-  
+population_list <- c(3.3e8)
 R0_list <- c(2.5)
 latentPeriod_list <- 5.5
 infectiousPeriod_list <- c(3.0)
@@ -57,6 +56,7 @@ useCommunityMitigation_list <- TRUE
 communityMitigationStartDay_list <- c(14)
 communityMitigationDuration_list <- c(0.75)
 communityMitigationMultiplier_list <- c(0.75)
+
 fractionSymptomatic_list <- list(c(0.61, #0-4
                               0.61, #5-11
                               0.71, #12-17
@@ -82,7 +82,7 @@ seedStartDay <- 0
 tolerance <- 1e-8
 method <- "default"
 
-
+parameter_frame <- expand.grid(population_list,
 parameter_frame <- expand.grid(R0_list,
                                latentPeriod_list,
                                infectiousPeriod_list,
@@ -105,7 +105,7 @@ parameter_frame <- expand.grid(R0_list,
                                VEi_list,
                                VEp_list,
                                vaccineEfficacyDelay_list) %>% as_tibble()
-names(parameter_frame) <- c("R0",
+
                             "latentPeriod",
                             "infectiousPeriod",
                             "fractionLatentThatIsInfectious",
@@ -130,9 +130,7 @@ names(parameter_frame) <- c("R0",
 
 stop()
 num_rows <- nrow(parameter_frame)
-
 model_list <- list()
-
 for(i in 1:num_rows)
 {
   print(sprintf("Running sweep %d out of %d.",i,num_rows))
