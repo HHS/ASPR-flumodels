@@ -196,34 +196,32 @@ SEAIRTVModel <- function(population, populationFractions, contactMatrix, R0,
          {
            if (useCommunityMitigation)
            {
-             if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay))
+             # Is the simulation in the midst of a mitigation cycle?
+             if ( any((t >= communityMitigationStartDay) & (t < communityMitigationEndDay)))
              {
-               # Is the simulation in the midst of a mitigation cycle?
-               if ( any((t >= communityMitigationStartDay) & (t < communityMitigationEndDay)))
+               # If so, which one?
+               communityMitigationCycle <- 
+                 which(communityMitigationStartDay <= t & t < communityMitigationEndDay)
+               
+               # communityMitigationMultiplier can be: (i) a single number for each mitigation cycle and for
+               # all subgroups; (ii) a 2D matrix specifying a mitigation across subgroups that does not vary between
+               # mitigation cycles; or (iii) or a list of 2D arrays specifying mitigation intensity across subgroups 
+               # at each mitigation cycle
+               if ( is.vector(communityMitigationMultiplier, mode = "numeric"))
                {
-                 # If so, which one?
-                 communityMitigationCycle <- 
-                   which(communityMitigationStartDay <= t & t < communityMitigationEndDay)
+                 contactMatrix <- communityMitigationMultiplier[communityMitigationCycle] * contactMatrix
                  
-                 # communityMitigationMultiplier can be: (i) a single number for each mitigation cycle and for
-                 # all subgroups; (ii) a 2D matrix specifying a mitigation across subgroups that does not vary between
-                 # mitigation cycles; or (iii) or a list of 2D arrays specifying mitigation intensity across subgroups 
-                 # at each mitigation cycle
-                 if ( is.vector(communityMitigationMultiplier, mode = "numeric"))
-                 {
-                   contactMatrix <- communityMitigationMultiplier[communityMitigationCycle] * contactMatrix
-                   
-                 }
-                 else if ( is.matrix(communityMitigationMultiplier) )
-                 {
-                   contactMatrix <- communityMitigationMultiplier * contactMatrix
-                 }
-                 else if ( is.list(communityMitigationMultiplier) )
-                 {
-                   contactMatrix <- communityMitigationMultiplier[[communityMitigationCycle]] * contactMatrix
-                 }
+               }
+               else if ( is.matrix(communityMitigationMultiplier) )
+               {
+                 contactMatrix <- communityMitigationMultiplier * contactMatrix
+               }
+               else if ( is.list(communityMitigationMultiplier) )
+               {
+                 contactMatrix <- communityMitigationMultiplier[[communityMitigationCycle]] * contactMatrix
                }
              }
+             
              effectiveVaccinationMultiplier <- sum(ifelse(V < populationFractions, 1, 0) * vaccinationRateAgeMultiplier)
              if (effectiveVaccinationMultiplier > 0)
              {

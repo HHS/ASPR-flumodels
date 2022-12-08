@@ -72,15 +72,28 @@ individuals, relative to symptomatic individuals; defaults to 1}
 \item{useCommunityMitigation}{Whether or not to use community mitigation
 implemented by modulation of the contact matrix; defaults to FALSE}
 
-\item{communityMitigationStartDay}{If using community mitigation, day of the
-simulation on which to start mitigation; must be specified if applicable}
+\item{communityMitigationStartDay}{If using community mitigation, days of the
+simulation on which each cycle of mitigation starts; must be specified 
+sequentially in time if applicable}
 
 \item{communityMitigationDuration}{If using community mitigation, duration of
-time during which mitigation is in effect; must be specified if applicable}
+time during which each cycle of mitigation is in effect (different cycles of
+mitigation cannot overlap); must be specified if applicable}
 
-\item{communityMitigationMultiplier}{If using community mitigation, the
-non-negative matrix of multipliers that will be used to modulate the contact
-matrix by elementwise multiplication; must be specified if applicable}
+\item{communityMitigationMultiplier}{The communityMitigationMultiplier is the set
+ of multipliers that will be used to modulate the contact
+  matrix by elementwise multiplication and can be:
+(i) a single non-negative scalar, if mitigation is the same for all subgroups 
+and all mitigation cycles; or, (ii) an atomic vector of non-negative entries 
+with length equal to the number of mitigation rounds, if mitigation is the 
+same for all subgroups but varies by  mitigation cycles; or
+(iii) a single 2D array of non-negative entries whose dimensions are identical
+ to those of the contact matrix, if mitigation varies by subgroup but is the 
+ same across mitigation cycles; or (iv) a list of 2D arrays, each of which has
+ dimensions that are identical to those of the contact matrix;
+the length of the list must match the number of mitigation cycles. This is 
+the most general case, in which mitigation varies by subgroup and by mitigation cycle.
+Must be specified if applicable.}
 
 \item{fractionSymptomatic}{Fraction of the infections that are symptomatic 
 cases; single fraction or vector of fractions by population group;  defaults
