@@ -78,7 +78,7 @@ VEs_list <- c(0.9)
 VEi_list <- c(0.0)
 VEp_list <- c(0.0)
 vaccineEfficacyDelay_list <- c(14)
-simulationLength <- c(180)
+simulationLength <- c(360)
 seedStartDay <- 0
 tolerance <- 1e-8
 method <- "default"
