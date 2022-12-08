@@ -131,7 +131,6 @@ names(parameter_frame) <- c("population",
                             "VEp",
                             "vaccineEfficacyDelay")
 
-stop()
 num_rows <- nrow(parameter_frame)
 model_list <- list()
 for(i in 1:num_rows)
