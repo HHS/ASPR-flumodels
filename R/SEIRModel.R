@@ -17,13 +17,26 @@
 #'   fraction, or vector of fractions by population group; defaults to 0
 #' @param useCommunityMitigation Whether or not to use community mitigation
 #'   implemented by modulation of the contact matrix; defaults to FALSE
-#' @param communityMitigationStartDay If using community mitigation, day of the
-#'   simulation on which to start mitigation; must be specified if applicable
+#' @param communityMitigationStartDay If using community mitigation, days of the
+#'   simulation on which each cycle of mitigation starts; must be specified 
+#'   sequentially in time if applicable
 #' @param communityMitigationDuration If using community mitigation, duration of
-#'   time during which mitigation is in effect; must be specified if applicable
-#' @param communityMitigationMultiplier If using community mitigation, the
-#'   non-negative matrix of multipliers that will be used to modulate the contact
-#'   matrix by elementwise multiplication; must be specified if applicable
+#'   time during which each cycle of mitigation is in effect (different cycles of
+#'   mitigation cannot overlap); must be specified if applicable
+#' @param communityMitigationMultiplier The communityMitigationMultiplier is the set
+#'  of multipliers that will be used to modulate the contact
+#'   matrix by elementwise multiplication and can be:
+#' (i) a single non-negative scalar, if mitigation is the same for all subgroups 
+#' and all mitigation cycles; or, (ii) an atomic vector of non-negative entries 
+#' with length equal to the number of mitigation rounds, if mitigation is the 
+#' same for all subgroups but varies by  mitigation cycles; or
+#' (iii) a single 2D array of non-negative entries whose dimensions are identical
+#'  to those of the contact matrix, if mitigation varies by subgroup but is the 
+#'  same across mitigation cycles; or (iv) a list of 2D arrays, each of which has
+#'  dimensions that are identical to those of the contact matrix;
+#' the length of the list must match the number of mitigation cycles. This is 
+#' the most general case, in which mitigation varies by subgroup and by mitigation cycle.
+#' Must be specified if applicable.
 #' @param simulationLength Number of days to simulate after seeding infections; 
 #'   defaults to 240
 #' @param seedStartDay Day on which to seed initial infections; defaults to 0
@@ -164,23 +177,64 @@ checkInputs.SEIR <- function(population = 1,
            call. = FALSE)
     }
     checkNonNegative(communityMitigationStartDay)
-    if (missing(communityMitigationDuration))
-    {
+    if (any(sort(communityMitigationStartDay) != communityMitigationStartDay)) {
+      stop("communityMitigationStartDays must be ordered sequentially in time.", 
+           call. = FALSE)
+    }
+    if (missing(communityMitigationDuration)) {
       stop("communityMitigationDuration must be specified when using community mitigation.", 
            call. = FALSE)
     }
     checkNonNegative(communityMitigationDuration)
-    if (missing(communityMitigationMultiplier))
-    {
+    if ((length(communityMitigationStartDay) != length(communityMitigationDuration)) &
+        (length(communityMitigationDuration) != 1)) {
+      stop("communityMitigationStartDay and communityMitigationDuration must have the same length or
+           length(communityMitigationDuration) = 1 for it to be recycled.", 
+           call. = FALSE)
+    }
+    if ( any(tail(communityMitigationStartDay, -1) < head(communityMitigationStartDay + communityMitigationDuration, -1))){
+      stop("There cannot be overlap between mitigation time windows.", 
+           call. = FALSE)
+    }
+    if (missing(communityMitigationMultiplier)) {
       stop("communityMitigationMultiplier must be specified when using community mitigation.", 
            call. = FALSE)
     }
-    if (!all(dim(communityMitigationMultiplier) == dim(contactMatrix)))
-    {
-      stop("Dimensions of communityMitigationMultiplier do not match those of contactMatrix", 
-           call. = FALSE)
+    if ( is.vector(communityMitigationMultiplier, mode = "numeric") ){
+      checkNonNegative(communityMitigationMultiplier)
+      
+      if ( !(length(communityMitigationMultiplier) %in% c(1, length(communityMitigationStartDay))) ){
+        stop("If communityMitigationMultiplier is the same for all subgroups it must either be:
+              (i) a scalar; or,
+              (ii) an atomic vector with length equal to the number of mitigation rounds.", 
+             call. = FALSE)   
+      }
     }
-    checkNonNegative(communityMitigationMultiplier)
+    if ( is.matrix(communityMitigationMultiplier) ){
+      checkNonNegative(communityMitigationMultiplier)
+      
+      if ( !all(dim(communityMitigationMultiplier) == dim(contactMatrix)) ) {
+        stop("If communityMitigationMultiplier is a matrix, then its dimensions
+             must match those of the contact matrix.", 
+             call. = FALSE)
+      }  
+    }
+    if ( is.list(communityMitigationMultiplier) ){
+      if ( !all(lapply(communityMitigationMultiplier, class) == "matrix") ){
+        stop("If communityMitigationMultiplier is a list, then its individual elements must be matrices
+              with dimensions matching those of the contact matrix.", 
+             call. = FALSE)
+      } else {
+        sapply(communityMitigationMultiplier, checkNonNegative)
+        
+        if ( !all(sapply(communityMitigationMultiplier, function(l) { all(dim(l) == dim(contactMatrix)) })) ){
+          stop("If communityMitigationMultiplier is a list, then its individual elements must be matrices
+              with dimensions matching those of the contact matrix.", 
+               call. = FALSE)
+        } 
+      }
+    }
+
   }
   
   #Collect and return the parameters
@@ -227,31 +281,47 @@ getDerivative.SEIR <- function(t,
                                parameters)
 {
   stateList <- reconstructState.SEIR(state)
-  with(append(stateList, parameters),
-       {
-         if (useCommunityMitigation)
-         {
-           if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay))
-           {
-             contactMatrix <- communityMitigationMultiplier * contactMatrix
-           } 
-         }
-         #Flows
-         forceOfInfection <- beta / populationFractions * (contactMatrix %*% I)
-         
-         S_to_E <- S * forceOfInfection
-         E_to_I <- lambda * E
-         I_to_R <- gamma * I
-         
-         #Derivatives
-         dS <- -S_to_E
-         dE <- S_to_E - E_to_I
-         dI <- E_to_I - I_to_R
-         dR <- I_to_R
-         
-         #Return derivative
-         return(list(c(dS, dE, dI, dR)))
-       })
+  with(append(stateList, parameters), {
+    if (useCommunityMitigation) {
+      # Is the simulation in the midst of a mitigation cycle?
+      if ( any((t >= communityMitigationStartDay) & (t < communityMitigationEndDay)) ) {
+        # If so, which one?
+        communityMitigationCycle <- 
+          which(communityMitigationStartDay <= t & t < communityMitigationEndDay)
+        
+        # communityMitigationMultiplier can be: (i) a single number for each mitigation cycle and for
+        # all subgroups; (ii) a 2D matrix specifying a mitigation across subgroups that does not vary between
+        # mitigation cycles; or (iii) or a list of 2D arrays specifying mitigation intensity across subgroups 
+        # at each mitigation cycle
+        if ( is.vector(communityMitigationMultiplier, mode = "numeric") ){
+          contactMatrix <- communityMitigationMultiplier[communityMitigationCycle] * contactMatrix
+          
+        } else if ( is.matrix(communityMitigationMultiplier) ) {
+          contactMatrix <- communityMitigationMultiplier * contactMatrix
+          
+        } else if ( is.list(communityMitigationMultiplier) ) {
+          contactMatrix <- communityMitigationMultiplier[[communityMitigationCycle]] * contactMatrix
+          
+        }
+      }
+    }
+    
+    #Flows
+    forceOfInfection <- beta / populationFractions * (contactMatrix %*% I)
+    
+    S_to_E <- S * forceOfInfection
+    E_to_I <- lambda * E
+    I_to_R <- gamma * I
+    
+    #Derivatives
+    dS <- -S_to_E
+    dE <- S_to_E - E_to_I
+    dI <- E_to_I - I_to_R
+    dR <- I_to_R
+    
+    #Return derivative
+    return(list(c(dS, dE, dI, dR)))
+  })
 }
 
 #This function implements seeding infections in the SEIR model
