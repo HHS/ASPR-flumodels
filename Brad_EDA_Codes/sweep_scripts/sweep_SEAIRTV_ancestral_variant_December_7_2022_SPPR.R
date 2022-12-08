@@ -152,7 +152,7 @@ for(i in 1:num_rows)
                         communityMitigationMultiplier = data_row$communityMitigationMultiplier,
                         fractionSymptomatic = data_row$fractionSymptomatic,
                         fractionSeekCare = data_row$fractionSeekCare,
-                        fractionDiagnosedAndPrescribedOutpatient = data_row$fractionDiagnosedAndPrescribedOutpatientdata,
+                        fractionDiagnosedAndPrescribedOutpatient  = data_row$fractionDiagnosedAndPrescribedOutpatient,
                         AVEi = data_row$AVEi,
                         AVEp = data_row$AVEp,
                         vaccineAdministrationRatePerDay = data_row$vaccineAdministrationRatePerDay,
