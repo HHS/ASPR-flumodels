@@ -44,19 +44,24 @@ pop_by_age_bracket %<>% as_tibble()
 
 model_list <- list()
 
+#Run the base case, TRUE or FALSE?
+run_base_case <- TRUE
+
+#Set all the parameter lists needed for expand.grid.
+simulationLength <- c(180)
 population_list <- c(3.3e8)
 populationFraction_list <- pop_by_age_bracket %>% pull(Fraction) %>% list()
-R0_list <- c(2.5)
-latentPeriod_list <- 5.5
-infectiousPeriod_list <- c(3.0)
-fractionLatentThatIsInfectious_list <- c(0.4)
+R0_list <- ifelse(test = run_base_case,yes = 2.5,no = c(2.4,2.5,2.6))
+latentPeriod_list <- ifelse(test = run_base_case,yes = 5.5,no = c(5,5.5,6))
+infectiousPeriod_list <- ifelse(test = run_base_case,yes = 3,no = c(2,3.0,4))
+fractionLatentThatIsInfectious_list <- ifelse(test = run_base_case,yes = 0.4,no = c(0.38,0.40,0.42))
 relativeInfectivityAsymptomatic_list <- list(rep(0.75,6L))
-seedInfections_list <- c(0.0001)
+seedInfections_list <- c(0.0001*population_list)
 priorImmunity_list <- c(0)
 useCommunityMitigation_list <- TRUE
-communityMitigationStartDay_list <- c(14)
-communityMitigationDuration_list <- c(0.75)
-communityMitigationMultiplier_list <- c(0.75)
+communityMitigationStartDay_list <- list(c(1,29))
+communityMitigationDuration_list <- list(c(7*4,simulationLength-7*4))
+communityMitigationMultiplier_list <- list(c(0.75,0.50))
 
 fractionSymptomatic_list <- list(c(0.61, #0-4
                                    0.61, #5-11
@@ -65,24 +70,25 @@ fractionSymptomatic_list <- list(c(0.61, #0-4
                                    0.77, #50-64
                                    0.77)) #65+
 
-fractionSeekCare_list <- c(0.6)
-fractionDiagnosedAndPrescribedOutpatient <- c(0.4)
+fractionSeekCare_list <- ifelse(test = run_base_case,yes = 0.6,no = c(0.58,0.6,0.62))
+fractionDiagnosedAndPrescribedOutpatient <- ifelse(test = run_base_case,yes = 0.4,no = c(0.38,0.40,0.42))
 fractionAdhere_list <- c(1.0)
 fractionAdmittted <- c(1.0)
-fractionDiagnosedAndPrescribedInpatient <- c(0.4)
+fractionDiagnosedAndPrescribedInpatient <- ifelse(test = run_base_case,yes = 0.4,no = c(0.38,0.40,0.42))
 AVEi_list <- c(0.0)
-AVEp_list <- c(0.7)
+AVEp_list <- ifelse(test = run_base_case,yes = 0.70,no = c(0.68,0.70,0.72))
 vaccineAdministrationRatePerDay_list <- c(0.0)
 vaccineAvailabilityByDay_list <- c(3.3e8)
-VEs_list <- c(0.9)
+VEs_list <- ifelse(test = run_base_case,yes = 0.90,no = c(0.88,0.9,0.92))
 VEi_list <- c(0.0)
 VEp_list <- c(0.0)
 vaccineEfficacyDelay_list <- c(14)
-simulationLength <- c(360)
+
 seedStartDay <- 0
 tolerance <- 1e-8
 method <- "default"
 
+#Make the sweep parameter experimental table.
 parameter_frame <- expand.grid(population_list,
                                populationFraction_list,
                                R0_list,
@@ -154,9 +160,9 @@ for(i in 1:num_rows)
                         priorImmunity = data_row$priorImmunity,
                         fractionAdhere = data_row$fractionAdhere,
                         useCommunityMitigation = data_row$useCommunityMitigation,
-                        communityMitigationStartDay = data_row$communityMitigationStartDay,
-                        communityMitigationDuration = data_row$communityMitigationDuration,
-                        communityMitigationMultiplier = data_row$communityMitigationMultiplier,
+                        communityMitigationStartDay = data_row$communityMitigationStartDay %>% unlist(),
+                        communityMitigationDuration = data_row$communityMitigationDuration %>% unlist(),
+                        communityMitigationMultiplier = data_row$communityMitigationMultiplier %>% unlist(),
                         fractionSymptomatic = data_row$fractionSymptomatic %>% unlist(),
                         fractionSeekCare = data_row$fractionSeekCare,
                         fractionDiagnosedAndPrescribedOutpatient  = data_row$fractionDiagnosedAndPrescribedOutpatient,
@@ -177,4 +183,4 @@ model_list[[i]] <- model
 }
 
 full_tibble <- bind_cols(parameter_frame,tibble(model = model_list),index = 1:num_rows)
-write_rds(x = full_tibble,file = "../output/sweeps/sweep_SEAIRTV_SPPR_ancestralCOVID19_December_7_2022/model_data.rds")
+write_rds(x = full_tibble,file = "../output/sweeps/sweep_SEAIRTV_SPPR_ancestralCOVID19_fixedErrorWithSeedInfectionsNotBeingAbsolute_December_8_2022/model_data.rds")
