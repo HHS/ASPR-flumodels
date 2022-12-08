@@ -84,7 +84,7 @@ tolerance <- 1e-8
 method <- "default"
 
 parameter_frame <- expand.grid(population_list,
-parameter_frame <- expand.grid(R0_list,
+                               R0_list,
                                latentPeriod_list,
                                infectiousPeriod_list,
                                fractionLatentThatIsInfectious_list,
@@ -107,6 +107,8 @@ parameter_frame <- expand.grid(R0_list,
                                VEp_list,
                                vaccineEfficacyDelay_list) %>% as_tibble()
 
+names(parameter_frame) <- c("population",
+                            "R0",
                             "latentPeriod",
                             "infectiousPeriod",
                             "fractionLatentThatIsInfectious",
