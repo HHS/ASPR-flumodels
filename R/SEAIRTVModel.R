@@ -191,7 +191,6 @@ getDerivative.SEAIRTV <- function(t, state, parameters) {
   with(append(stateList, parameters), {
     
     if (useCommunityMitigation) {
-      if ((t >= communityMitigationStartDay) && (t < communityMitigationEndDay)) {
       # Is the simulation in the midst of a mitigation cycle?
       if ( any((t >= communityMitigationStartDay) & (t < communityMitigationEndDay)) ) {
         # If so, which one?
