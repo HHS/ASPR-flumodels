@@ -58,11 +58,12 @@ communityMitigationDuration_list <- c(0.75)
 communityMitigationMultiplier_list <- c(0.75)
 
 fractionSymptomatic_list <- list(c(0.61, #0-4
-                              0.61, #5-11
-                              0.71, #12-17
-                              0.77, #18-49
-                              0.77, #50-64
-                              0.77)) #65+
+                                   0.61, #5-11
+                                   0.71, #12-17
+                                   0.77, #18-49
+                                   0.77, #50-64
+                                   0.77)) #65+
+
 fractionSeekCare_list <- c(0.6)
 fractionDiagnosedAndPrescribedOutpatient <- c(0.4)
 fractionAdhere <- c(1.0)
