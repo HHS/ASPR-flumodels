@@ -135,45 +135,36 @@ for(i in 1:num_rows)
 {
   print(sprintf("Running sweep %d out of %d.",i,num_rows))
   data_row <- parameter_frame[i,]
-  R0_value <- data_row$R0
-  VEs_value <- data_row$VEs
-  VEi_value <- data_row$VEi
-  VEp_value <- data_row$VEp
   
-  model <- SEAIRTVModel(R0 = data_row$R0,
+  model <- SEAIRTVModel(population = data_row$population,
+                        R0 = data_row$R0,
                         latentPeriod = data_row$latentPeriod,
-                        infectiousPeriod =data_row$infectiousPeriod,
-                        fractionLatentThatIsInfectious =data_row$fractionLatentThatIsInfectious,
-                        relativeInfectivityAsymptomatic =data_row$relativeInfectivityAsymptomatic,
-                        seedInfections =data_row$seedInfections,
-                        priorImmunity =data_row$priorImmunity,
-                        useCommunityMitigation =data_row$useCommunityMitigation,
-                        communityMitigationStartDay =data_row$communityMitigationStartDay,
-                        communityMitigationDuration =data_row$communityMitigationDuration,
-                        communityMitigationMultiplier =data_row$communityMitigationMultiplier,
-                        fractionSymptomatic =data_row$fractionSymptomatic,
-                        fractionSeekCare =data_row$fractionSeekCare,
-                        fractionDiagnosedAndPrescribedOutpatientdata$fractionDiagnosedAndPrescribedOutpatientdata,
-                        AVEi =data_row$AVEi,
-                        AVEp =data_row$AVEp,
-                        vaccineAdministrationRatePerDay =data_row$vaccineAdministrationRatePerDay,
-                        vaccineAvailabilityByDay =data_row$vaccineAvailabilityByDay,
-                        VEs =data_row$VEs,
-                        VEi =data_row$VEi,
-                        VEp =data_row$VEp,
-                        vaccineEfficacyDelay = data_row$vaccineEfficacyDelay)
-                      population = 330e6,
-                      seedInfections = 10000,
-                      latentPeriod = 7,
-                      infectiousPeriod = 7,
-                      vaccineAvailabilityByDay = c(60e6, rep(0, 59), rep(15e6/7, 7*16)),
-                      vaccineAdministrationRatePerDay = 15e6/7,
-                      VEs = VEs_value,
-                      VEi = VEi_value,
-                      VEp = VEp_value,
-                      simulationLength = 365)
-  
-  model_list[[i]] <- model
+                        infectiousPeriod = data_row$infectiousPeriod,
+                        fractionLatentThatIsInfectious = data_row$fractionLatentThatIsInfectious,
+                        relativeInfectivityAsymptomatic = data_row$relativeInfectivityAsymptomatic,
+                        seedInfections = data_row$seedInfections,
+                        priorImmunity = data_row$priorImmunity,
+                        useCommunityMitigation = data_row$useCommunityMitigation,
+                        communityMitigationStartDay = data_row$communityMitigationStartDay,
+                        communityMitigationDuration = data_row$communityMitigationDuration,
+                        communityMitigationMultiplier = data_row$communityMitigationMultiplier,
+                        fractionSymptomatic = data_row$fractionSymptomatic,
+                        fractionSeekCare = data_row$fractionSeekCare,
+                        fractionDiagnosedAndPrescribedOutpatient = data_row$fractionDiagnosedAndPrescribedOutpatientdata,
+                        AVEi = data_row$AVEi,
+                        AVEp = data_row$AVEp,
+                        vaccineAdministrationRatePerDay = data_row$vaccineAdministrationRatePerDay,
+                        vaccineAvailabilityByDay = data_row$vaccineAvailabilityByDay,
+                        VEs = data_row$VEs,
+                        VEi = data_row$VEi,
+                        VEp = data_row$VEp,
+                        vaccineEfficacyDelay = data_row$vaccineEfficacyDelay,
+                        simulationLength = simulationLength,
+                        seedStartDay  = seedStartDay,
+                        tolerance  = 1e-8,
+                        method = "default")
+
+model_list[[i]] <- model
 }
 
 full_tibble <- bind_cols(parameter_frame,tibble(model = model_list),index = 1:num_rows)
