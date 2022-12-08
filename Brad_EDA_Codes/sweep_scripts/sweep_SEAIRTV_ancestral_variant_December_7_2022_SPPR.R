@@ -177,4 +177,4 @@ model_list[[i]] <- model
 }
 
 full_tibble <- bind_cols(parameter_frame,tibble(model = model_list),index = 1:num_rows)
-write_rds(x = full_tibble,file = "sweeps/sweep_SEIRV_RDS_November_30_2022/model_data.rds")
+write_rds(x = full_tibble,file = "../output/sweeps/sweep_SEAIRTV_SPPR_ancestralCOVID19_December_7_2022/model_data.rds")
