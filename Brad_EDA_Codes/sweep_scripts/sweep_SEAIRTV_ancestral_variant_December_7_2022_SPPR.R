@@ -43,7 +43,7 @@ pop_by_age_bracket %<>% as_tibble()
 
 model_list <- list()
 
-population_list <- pop_by_age_bracket %>% pull(Fraction)
+age_bracket_list <- pop_by_age_bracket %>% pull(Fraction)
 population_list <- c(3.3e8)
 R0_list <- c(2.5)
 latentPeriod_list <- 5.5
