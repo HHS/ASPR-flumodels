@@ -143,18 +143,21 @@ for(i in 1:num_rows)
   data_row <- parameter_frame[i,]
   
   model <- SEAIRTVModel(population = data_row$population,
+                        populationFraction = data_row$populationFraction %>% unlist(),
+                        contactMatrix = makeContactMatrix(ages = c(4,11,17,49,65)),
                         R0 = data_row$R0,
                         latentPeriod = data_row$latentPeriod,
                         infectiousPeriod = data_row$infectiousPeriod,
                         fractionLatentThatIsInfectious = data_row$fractionLatentThatIsInfectious,
-                        relativeInfectivityAsymptomatic = data_row$relativeInfectivityAsymptomatic,
+                        relativeInfectivityAsymptomatic = data_row$relativeInfectivityAsymptomatic %>% unlist(),
                         seedInfections = data_row$seedInfections,
                         priorImmunity = data_row$priorImmunity,
+                        fractionAdhere = data_row$fractionAdhere,
                         useCommunityMitigation = data_row$useCommunityMitigation,
                         communityMitigationStartDay = data_row$communityMitigationStartDay,
                         communityMitigationDuration = data_row$communityMitigationDuration,
                         communityMitigationMultiplier = data_row$communityMitigationMultiplier,
-                        fractionSymptomatic = data_row$fractionSymptomatic,
+                        fractionSymptomatic = data_row$fractionSymptomatic %>% unlist(),
                         fractionSeekCare = data_row$fractionSeekCare,
                         fractionDiagnosedAndPrescribedOutpatient  = data_row$fractionDiagnosedAndPrescribedOutpatient,
                         AVEi = data_row$AVEi,
@@ -168,7 +171,7 @@ for(i in 1:num_rows)
                         simulationLength = simulationLength,
                         seedStartDay  = seedStartDay,
                         tolerance  = 1e-8,
-                        method = "default")
+                        method = "lsoda")
 
 model_list[[i]] <- model
 }
