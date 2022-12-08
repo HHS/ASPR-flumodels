@@ -67,7 +67,7 @@ fractionSymptomatic_list <- list(c(0.61, #0-4
 
 fractionSeekCare_list <- c(0.6)
 fractionDiagnosedAndPrescribedOutpatient <- c(0.4)
-fractionAdhere <- c(1.0)
+fractionAdhere_list <- c(1.0)
 fractionAdmittted <- c(1.0)
 fractionDiagnosedAndPrescribedInpatient <- c(0.4)
 AVEi_list <- c(0.0)
