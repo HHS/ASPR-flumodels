@@ -50,7 +50,7 @@ R0_list <- c(2.5)
 latentPeriod_list <- 5.5
 infectiousPeriod_list <- c(3.0)
 fractionLatentThatIsInfectious_list <- c(0.4)
-relativeInfectivityAsymptomatic_list <- c(0.75)
+relativeInfectivityAsymptomatic_list <- list(rep(0.75,6L))
 seedInfections_list <- c(0.0001)
 priorImmunity_list <- c(0)
 useCommunityMitigation_list <- TRUE
