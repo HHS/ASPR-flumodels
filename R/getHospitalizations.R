@@ -122,5 +122,36 @@ getHospitalizations.SEIRTModel <- function(model, byGroup = TRUE, asRate = FALSE
 #' @keywords internal
 #' @export
 getHospitalizations.SEAIRTVModel <- function(model, byGroup = TRUE, asRate = FALSE, caseHospitalizationRatio, timeSeries = FALSE) {
-  getHospitalizations.SEIRTModel(model, byGroup, asRate, caseHospitalizationRatio, timeSeries)
+  if (missing(caseHospitalizationRatio)) {
+    stop("caseHospitalizationRatio must be specified.")
+  }
+  AVEp.outpatient.eff <- model$parameters$AVEp * 
+    model$parameters$fractionAdhere * 
+    model$parameters$fractionDiagnosedAndPrescribedOutpatient * 
+    model$parameters$fractionSeekCare
+  
+  if (timeSeries) {
+    hospitalizations <- t(t(getInfectionTimeSeries(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE, incidence = TRUE)) * 
+                            (1 - AVEp.outpatient.eff) * caseHospitalizationRatio)
+  }
+  else {
+    hospitalizations <- getInfections(model, byGroup = TRUE, asRate = asRate, symptomatic = TRUE) * (1 - AVEp.outpatient.eff) *
+      caseHospitalizationRatio
+  }
+  
+  if (asRate) {
+    names(hospitalizations) <- getLabels("hospitalizationRate", length(model$parameters$populationFractions)) 
+  } else { #Number
+    names(hospitalizations) <- getLabels("hospitalizations", length(model$parameters$populationFractions))
+  }
+  if (byGroup) {
+    return(hospitalizations)
+  } else {
+    if (timeSeries) {
+      return(rowSums(hospitalizations))
+    }
+    else {
+      return(sum(hospitalizations))
+    }
+  }
 }

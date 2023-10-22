@@ -146,17 +146,7 @@ checkInputs.SEIR <- function(population = 1, populationFractions = 1, contactMat
       stop("communityMitigationDuration must be specified when using community mitigation.", 
         call. = FALSE)
     }
-    checkNonNegative(communityMitigationDuration)
-    if ((length(communityMitigationStartDay) != length(communityMitigationDuration)) &
-        (length(communityMitigationDuration) != 1)) {
-      stop("communityMitigationStartDay and communityMitigationDuration must have the same length or
-           length(communityMitigationDuration) = 1 for it to be recycled.", 
-           call. = FALSE)
-    }
-    if ( any(tail(communityMitigationStartDay, -1) < head(communityMitigationStartDay + communityMitigationDuration, -1))){
-      stop("There cannot be overlap between mitigation time windows.", 
-           call. = FALSE)
-    }
+    checkNonNegative(communityMitigationStartDay)
     if (missing(communityMitigationMultiplier)) {
       stop("communityMitigationMultiplier must be specified when using community mitigation.", 
         call. = FALSE)
