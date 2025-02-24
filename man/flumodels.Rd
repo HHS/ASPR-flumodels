@@ -2,6 +2,7 @@
 % Please edit documentation in R/flumodels-package.R
 \docType{package}
 \name{flumodels}
+\alias{flumodels-package}
 \alias{flumodels}
 \title{Deterministic compartmental models for influenza with mitigations.}
 \description{
