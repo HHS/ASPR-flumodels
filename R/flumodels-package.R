@@ -32,4 +32,4 @@
 #'                     contactMatrix = matrix(c(18,  3,
 #'                                               9, 12), ncol=2, byrow = TRUE))
 #' plot(model2)
-NULL
+"_PACKAGE"
