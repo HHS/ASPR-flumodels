@@ -1,6 +1,6 @@
-#' @title SEIRPrep Model
+#' @title SEIRVPrep Model
 #' @description A model for influenza that uses a SEIR framework with age 
-#'   structure that incorporates PrEP antivirals
+#'   structure that incorporates PrEP antivirals and vaccination
 #' @param population Size of population; defaults to 1
 #' @param populationFractions Vector of population fractions (all non-negative, 
 #'   sum to 1); defaults to 1, representing a single population group
@@ -51,6 +51,24 @@
 #' @param AVEp Antiviral efficacy: probability that antiviral treatment averts 
 #'   hospitalization and/or death; single fraction or vector of fractions by
 #'   population group; defaults to 0
+#'   #' @param vaccineAdministrationRatePerDay Vaccine administration rate each day; 
+#'   defaults to 0
+#' @param vaccineAvailabilityByDay Vector that contains the amount of vaccine 
+#'   available each day; defaults to 0
+#' @param vaccineUptakeMultiplier Vector of multipliers that determines the
+#'   relative rate at which vaccine is given to each age group; defaults to
+#'   vaccine being allotted proportionally by population
+#' @param VEs Vaccine efficacy: protection for vaccinated susceptible 
+#'   individuals; single fraction or vector of fractions by population group;
+#'   defaults to 0
+#' @param VEi Vaccine efficacy: prevention of transmission from vaccinated 
+#'   infected individuals; single fraction or vector of fractions by population
+#'   group; defaults to 0
+#' @param VEp Vaccine efficacy: prevention of symptomatic illness in
+#'   infected indivduals; single fraction or vector of fractions by population
+#'   group; defaults to 0
+#' @param vaccineEfficacyDelay Delay in days between administration of dose and 
+#'   onset of protection; defaults to 7
 #' @param simulationLength Number of days to simulate after seeding infections; 
 #'   defaults to 240
 #' @param seedStartDay Day on which to seed initial infections; defaults to 0
@@ -59,17 +77,19 @@
 #' @param method Which integration method to use. Defaults to lsoda
 #' @return a SEIRModel object
 #' @export
-SEIRPrEPModel <- function(population, populationFractions, contactMatrix, R0,
-                      latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
-                      useCommunityMitigation, communityMitigationStartDay,
-                      communityMitigationDuration, communityMitigationMultiplier,
-                      prepDiagnosisRate, fractionOnPrEP, timeBetweenPrEPDoses, AVEs, AVEi, AVEp,
-                      simulationLength, seedStartDay, tolerance, method) {
+SEIRVPrEPModel <- function(population, populationFractions, contactMatrix, R0,
+                          latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
+                          useCommunityMitigation, communityMitigationStartDay,
+                          communityMitigationDuration, communityMitigationMultiplier,
+                          prepDiagnosisRate, fractionOnPrEP, timeBetweenPrEPDoses, AVEs, AVEi, AVEp,
+                          vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
+                          vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
+                          simulationLength, seedStartDay, tolerance, method) {
   #Check inputs
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
-  parameters <- do.call("checkInputs.SEIRPrEP", argumentList) #Get parameters from checked inputs
+  parameters <- do.call("checkInputs.SEIRVPrEP", argumentList) #Get parameters from checked inputs
   
   initialState <- with(parameters, {
     c(S  = (1 - priorImmunity) * populationFractions,
@@ -80,100 +100,95 @@ SEIRPrEPModel <- function(population, populationFractions, contactMatrix, R0,
       Eprep = 0 * populationFractions,
       Iprep = 0 * populationFractions,
       Rprep = 0 * populationFractions,
-      PrEP = 0 * populationFractions)
+      Sv = 0 * populationFractions,
+      Ev = 0 * populationFractions,
+      Iv = 0 * populationFractions,
+      Rv = 0 * populationFractions,
+      Sv_prep = 0 * populationFractions,
+      Ev_prep = 0 * populationFractions,
+      Iv_prep = 0 * populationFractions,
+      Rv_prep = 0 * populationFractions,
+      PrEP = 0 * populationFractions,
+      V = 0 * populationFractions)
   })
   
   rawOutput <- integrateModel(initialState = initialState,
                               parameters = parameters,
-                              derivativeFunction = getDerivative.SEIRPrEP,
-                              seedFunction = doSeed.SEIRPrEP)
+                              derivativeFunction = getDerivative.SEIRVPrEP,
+                              seedFunction = doSeed.SEIRVPrEP)
   
   #Build the SEIRModel object to return
   model <- list(parameters = parameters,
                 rawOutput = rawOutput)
-  class(model) <- "SEIRPrEPModel"
+  class(model) <- "SEIRVPrEPModel"
   return(model)
 }
 
 
-#' @title Check SEIR+PrEP inputs
-#' @description Checks the input parameters for the SEIR+V model
-#' @return List of parameters for the SEIR+PrEP model
+#' @title Check SEIRVPrEP inputs
+#' @description Checks the input parameters for the SEIRVPrEP model
+#' @return List of parameters for the SEIRVPrEP model
 #' @keywords internal
-checkInputs.SEIRPrEP <- function(population, populationFractions, contactMatrix, R0,
+checkInputs.SEIRVPrEP <- function(population, populationFractions, contactMatrix, R0,
                                  latentPeriod, infectiousPeriod, seedInfections, priorImmunity,
                                  useCommunityMitigation, communityMitigationStartDay,
                                  communityMitigationDuration, communityMitigationMultiplier, 
                                  prepDiagnosisRate, fractionOnPrEP, timeBetweenPrEPDoses, AVEs, AVEi, AVEp,
+                                 vaccineAdministrationRatePerDay, vaccineAvailabilityByDay,
+                                 vaccineUptakeMultiplier, VEs, VEi, VEp, vaccineEfficacyDelay,
                                  simulationLength, seedStartDay, tolerance, method) {
   specifiedArguments <- names(match.call())[-1]
   argumentList <- lapply(specifiedArguments, as.name)
   names(argumentList) <- specifiedArguments
   SEIRParameters <- do.call("checkInputs.SEIR", argumentList)
-  #Update arguments passed to checkInputs.PrEP using SEIRParameters
+  #Update arguments passed to checkInputs.Vaccine using SEIRParameters
   argumentList$population <- SEIRParameters$population
   argumentList$populationFractions <- SEIRParameters$populationFractions
   argumentList$seedStartDay <- SEIRParameters$seedStartDay
   argumentList$simulationLength <- SEIRParameters$simulationLength
   prepParameters <- do.call("checkInputs.PrEP", argumentList)
+  vaccineParameters <- do.call("checkInputs.Vaccine", argumentList)
   #Return the parameters
-  return(c(SEIRParameters, prepParameters))
-}
-
-
-
-#' @title Check PrEP inputs
-#' @description Checks PrEP inputs and computes the parameters
-#' @return List of PrEP parameters
-#' @keywords internal
-checkInputs.PrEP <- function(populationFractions, prepDiagnosisRate = 0, fractionOnPrEP = 0, timeBetweenPrEPDoses = 1, AVEs = 0, AVEi = 0, AVEp = 0, ...) {
-  #Validate PrEP parameters
-  #prepDiagnosisRate
-  checkPositiveNumber(prepDiagnosisRate)
-  #fractionOnPrEP
-  checkBetween0and1(fractionOnPrEP)
-  checkDimensionsMatch(fractionOnPrEP, populationFractions)
-  #timeBetweenPrEPDoses
-  checkPositiveNumber(timeBetweenPrEPDoses)
-  checkDimensionsMatch(timeBetweenPrEPDoses, populationFractions)
-  #AVEs
-  checkBetween0and1(AVEs)
-  checkDimensionsMatch(AVEs, populationFractions)
-  #AVEi
-  checkBetween0and1(AVEi)
-  checkDimensionsMatch(AVEi, populationFractions)
-  #AVEp
-  checkBetween0and1(AVEp)
-  checkDimensionsMatch(AVEp, populationFractions)
-  
-  return(list(prepDiagnosisRate = prepDiagnosisRate,
-              fractionOnPrEP = fractionOnPrEP, timeBetweenPrEPDoses = timeBetweenPrEPDoses,
-              AVEs = AVEs, AVEi = AVEi, AVEp = AVEp))
+  return(c(SEIRParameters, prepParameters, vaccineParameters))
 }
 
 
 
 
 #This is a utility function that reconstructs the model state as a list so that equations can refer to compartments by name
-reconstructState.SEIRPrEP <- function(state) {
-  numberOfClasses <- length(state) / 9 #Each of the 9 classes are vectors of the same length
+reconstructState.SEIRVPrEP <- function(state) {
+  numberOfClasses <- length(state) / 18 #Each of the 14 classes are vectors of the same length
   S  <- state[                       1 :     numberOfClasses ]
   E  <- state[    (numberOfClasses + 1):(2 * numberOfClasses)]
   I  <- state[(2 * numberOfClasses + 1):(3 * numberOfClasses)]
   R  <- state[(3 * numberOfClasses + 1):(4 * numberOfClasses)]
+  
   Sprep <- state[(4 * numberOfClasses + 1):(5 * numberOfClasses)]
   Eprep <- state[(5 * numberOfClasses + 1):(6 * numberOfClasses)]
   Iprep <- state[(6 * numberOfClasses + 1):(7 * numberOfClasses)]
   Rprep <- state[(7 * numberOfClasses + 1):(8 * numberOfClasses)]
-  PrEP  <- state[(8 * numberOfClasses + 1):(9 * numberOfClasses)]
+  
+  Sv <- state[(8 * numberOfClasses + 1):(9 * numberOfClasses)]
+  Ev <- state[(9 * numberOfClasses + 1):(10 * numberOfClasses)]
+  Iv <- state[(10 * numberOfClasses + 1):(11 * numberOfClasses)]
+  Rv <- state[(11 * numberOfClasses + 1):(12 * numberOfClasses)]
+  
+  Sv_prep <- state[(12 * numberOfClasses + 1):(13 * numberOfClasses)]
+  Ev_prep <- state[(13 * numberOfClasses + 1):(14 * numberOfClasses)]
+  Iv_prep <- state[(14 * numberOfClasses + 1):(15 * numberOfClasses)]
+  Rv_prep <- state[(15 * numberOfClasses + 1):(16 * numberOfClasses)]
+  
+  PrEP <- state[(16 * numberOfClasses + 1):(17 * numberOfClasses)]
+  V  <- state[(17 * numberOfClasses + 1):(18 * numberOfClasses)]
+  
   return(as.list(environment()))
 }
 
 #This function implements the multivariate derivative of the SEIRPrEP model
 #parameters should define populationFractions, normalizedContactMatrix, beta, lambda, and gamma
 #Note that the total population is normalized to be 1
-getDerivative.SEIRPrEP <- function(t, state, parameters) {
-  stateList <- reconstructState.SEIRPrEP(state)
+getDerivative.SEIRVPrEP <- function(t, state, parameters) {
+  stateList <- reconstructState.SEIRVPrEP(state)
   with(append(stateList, parameters), {
     if (useCommunityMitigation) {
       # Is the simulation in the midst of a mitigation cycle?
@@ -199,46 +214,86 @@ getDerivative.SEIRPrEP <- function(t, state, parameters) {
       }
     }
     
+    effectiveVaccinationMultiplier <- sum(ifelse(V < populationFractions, 1, 0) * vaccinationRateAgeMultiplier)
+    if (effectiveVaccinationMultiplier > 0) {
+      vaccinationRateByAge <- vaccinationRate(t) * vaccinationRateAgeMultiplier /
+        effectiveVaccinationMultiplier
+    } else {
+      vaccinationRateByAge <- 0
+    }
+    
     #Flows
-    forceOfInfection <- beta / populationFractions * (contactMatrix %*% (I + (1 - AVEi) * Iprep))
+    forceOfInfection <- beta / populationFractions * (contactMatrix %*% (I + (1 - AVEi) * Iprep + 
+                                                                           (1 - VEi) * Iv +
+                                                                           (1 - AVEi) * (1 - VEi) * Iv_prep))
     
     S_to_E <- S * forceOfInfection
     E_to_I <- lambda * E
     I_to_R <- gamma * I
     
-    # S_to_Sv <-  ifelse(V < populationFractions, vaccinationRateByAge * S / (populationFractions - V), 0)
-    S_to_Sprep <-  ifelse(Sprep + Eprep + Iprep + Rprep < populationFractions * fractionOnPrEP, S * prepDiagnosisRate, 0)
+    S_to_Sv <-  ifelse(V < populationFractions, vaccinationRateByAge * S / (populationFractions - V), 0)
+    S_to_Sprep <-  ifelse(Sprep + Eprep + Iprep + Rprep +
+                            Sv_prep + Ev_prep + Iv_prep + Rv_prep < populationFractions * fractionOnPrEP, S * prepDiagnosisRate, 0)
     
     Sprep_to_Eprep <- Sprep * (1 - AVEs) * forceOfInfection
     Eprep_to_Iprep <- lambda * Eprep
     Iprep_to_Rprep <- gamma * Iprep
     
+    Sprep_to_Sv_prep <-  ifelse(V < populationFractions, vaccinationRateByAge * Sprep / (populationFractions - V), 0)
     
+    Sv_to_Ev <- Sv * (1 - VEs) * forceOfInfection
+    Ev_to_Iv <- lambda * Ev
+    Iv_to_Rv <- gamma * Iv
+    
+    Sv_to_Sv_prep <-  ifelse(Sprep + Eprep + Iprep + Rprep +
+                               Sv_prep + Ev_prep + Iv_prep + Rv_prep < populationFractions * fractionOnPrEP, Sv * prepDiagnosisRate, 0)
+    
+    
+    Sv_prep_to_Ev_prep <- Sv_prep * (1 - AVEs) * (1 - VEs) * forceOfInfection
+    Ev_prep_to_Iv_prep <- lambda * Ev_prep
+    Iv_prep_to_Rv_prep <- gamma * Iv_prep
+    
+
     #Derivatives
-    dS <- - S_to_E - S_to_Sprep
+    dS <- - S_to_E - S_to_Sprep - S_to_Sv
     dE <- S_to_E - E_to_I
     dI <- E_to_I - I_to_R
     dR <- I_to_R
     
     #PrEP compartments
-    dSprep <- - Sprep_to_Eprep + S_to_Sprep
+    dSprep <- - Sprep_to_Eprep + S_to_Sprep - Sprep_to_Sv_prep
     dEprep <- Sprep_to_Eprep - Eprep_to_Iprep
     dIprep <- Eprep_to_Iprep - Iprep_to_Rprep
     dRprep <- Iprep_to_Rprep
     
-    #Compartment for tracking doses
-    dPrEP <- (Sprep + Eprep + Iprep + Rprep) / timeBetweenPrEPDoses
+    #Vaccinated compartments
+    dSv <- -Sv_to_Ev + S_to_Sv - Sv_to_Sv_prep
+    dEv <- Sv_to_Ev - Ev_to_Iv
+    dIv <- Ev_to_Iv - Iv_to_Rv
+    dRv <- Iv_to_Rv
+    
+    #PrEP + Vaccine compartments
+    dSv_prep <- -Sv_prep_to_Ev_prep + Sprep_to_Sv_prep + Sv_to_Sv_prep
+    dEv_prep <- Sv_prep_to_Ev_prep - Ev_prep_to_Iv_prep
+    dIv_prep <- Ev_prep_to_Iv_prep - Iv_prep_to_Rv_prep
+    dRv_prep <- Iv_prep_to_Rv_prep
+    
+    #Auxiliary vaccinated compartment
+    dV <- ifelse(V < populationFractions, vaccinationRateByAge, 0)
+    
+    #Compartment for tracking PrEP doses
+    dPrEP <- (Sprep + Eprep + Iprep + Rprep + Sv_prep + Ev_prep + Iv_prep + Rv_prep) / timeBetweenPrEPDoses
     
     #Return derivative
-    return(list(c(dS, dE, dI, dR, dSprep, dEprep, dIprep, dRprep, dPrEP)))
+    return(list(c(dS, dE, dI, dR, dSprep, dEprep, dIprep, dRprep, dSv, dEv, dIv, dRv, dSv_prep, dEv_prep, dIv_prep, dRv_prep, dPrEP, dV)))
   })
 }
 
 #This function implements seeding infections in the SEIR model
 #parameters should define seedInfections, lambda, and gamma
 #Note that the total population is normalized to be 1
-doSeed.SEIRPrEP <- function(state, parameters) {
-  stateList <- reconstructState.SEIRPrEP(state)
+doSeed.SEIRVPrEP <- function(state, parameters) {
+  stateList <- reconstructState.SEIRVPrEP(state)
   with(append(stateList, parameters), {
     seedInfectionsFractions <- seedInfections / population
     S <- S - seedInfectionsFractions * S / (S + Sprep)
@@ -249,6 +304,6 @@ doSeed.SEIRPrEP <- function(state, parameters) {
     Eprep <- Eprep + seedInfectionsFractions * Sprep / (S + Sprep) / (1 + lambda / gamma)
     Iprep <- Iprep + seedInfectionsFractions * Sprep / (S + Sprep) / (1 + gamma / lambda)
     #Return derivative
-    return(c(S, E, I, R, Sprep, Eprep, Iprep, Rprep, PrEP))
+    return(c(S, E, I, R, Sprep, Eprep, Iprep, Rprep, Sv, Ev, Iv, Rv, Sv_prep, Ev_prep, Iv_prep, Rv_prep, PrEP, V))
   })
 }
