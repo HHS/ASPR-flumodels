@@ -216,8 +216,8 @@ checkInputs.VaccinePrimeBoost <- function(population, populationFractions, seedS
     #Prioritize boosting over priming
     vaccinationRateBoostByDay[i] <- min(vaccineAdministrationRatePerDay, currentVaccineAvailabilityBoost,
                                         currentPrimedToBoost)
-    vaccinationRatePrimeByDay[i] <- max(min(vaccineAdministrationRatePerDay, currentVaccineAvailabilityPrime) -
-                                              vaccinationRateBoostByDay[i], 0)
+    vaccinationRatePrimeByDay[i] <- max(min(vaccineAdministrationRatePerDay - vaccinationRateBoostByDay[i], currentVaccineAvailabilityPrime), 
+                                        0)
     newPrimedToBoost[i + boostDelay] <- vaccinationRatePrimeByDay[i] #Works if boostDelay >=1
     currentPrimedToBoost <- currentPrimedToBoost - vaccinationRateBoostByDay[i]
     currentVaccineAvailabilityPrime <- currentVaccineAvailabilityPrime - vaccinationRatePrimeByDay[i]
